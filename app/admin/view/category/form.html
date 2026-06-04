@@ -1,0 +1,91 @@
+<form action="{:sysuri()}" method="post" data-auto="true" class="layui-form layui-card" data-table-id="CategoryTable">
+
+    <div class="layui-card-body padding-left-40">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label label-required-next">上级栏目</label>
+            <div class="layui-input-block">
+                <select name='pid' class='layui-select' lay-search>
+                    {foreach $categories as $cat}{eq name='cat.id' value='$vo.pid|default=0'}
+                    <option selected value='{$cat.id}'>{$cat.spl|raw}{$cat.title}</option>
+                    {else}
+                    <option value='{$cat.id}'>{$cat.spl|raw}{$cat.title}</option>
+                    {/eq}{/foreach}
+                </select>
+                <p class="help-block">必选，请选择上级栏目（目前最多支持三级栏目）</p>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label label-required-next">栏目名称</label>
+            <div class="layui-input-block">
+                <input name="title" value='{$vo.title|default=""}' required vali-name="栏目名称" placeholder="请输入栏目名称" class="layui-input">
+                <p class="help-block">必填，建议 4-6 个汉字</p>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">栏目标识</label>
+            <div class="layui-input-block">
+                <input name="code" value='{$vo.code|default=""}' placeholder="请输入栏目标识（如：news、product）" class="layui-input">
+                <p class="help-block">可选，用于程序调用，唯一标识，只能使用英文字母和下划线</p>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">栏目图标</label>
+            <div class="layui-input-block">
+                <div class="layui-input-inline">
+                    <input placeholder="请输入或选择图标" name="icon" value='{$vo.icon|default=""}' class="layui-input">
+                </div>
+                <span style="padding:0 12px;min-width:45px" class='layui-btn layui-btn-primary'>
+                    <i style="font-size:1.2em;margin:0;float:none" class='{$vo.icon|default=""}'></i>
+                </span>
+                <button data-icon='icon' type='button' class='layui-btn layui-btn-primary'>选择图标</button>
+                <p class="help-block">可选，设置栏目图标</p>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">封面图</label>
+            <div class="layui-input-block">
+                <input name="cover" value='{$vo.cover|default=""}' placeholder="请上传封面图" class="layui-input">
+                <p class="help-block">可选，栏目封面图片</p>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">描述</label>
+            <div class="layui-input-block">
+                <textarea name="desc" placeholder="请输入栏目描述" class="layui-textarea">{$vo.desc|default=''}</textarea>
+                <p class="help-block">可选，栏目描述或备注</p>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">排序</label>
+            <div class="layui-input-block">
+                <input type="number" name="sort" value='{$vo.sort|default=0}' min="0" placeholder="排序值，越小越靠前" class="layui-input">
+                <p class="help-block">可选，排序值越小越靠前，默认为 0</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="hr-line-dashed"></div>
+    {notempty name='vo.id'}<input type='hidden' value='{$vo.id}' name='id'>{/notempty}
+
+    <div class="layui-form-item text-center">
+        <button class="layui-btn" type='submit'>保存数据</button>
+        <button class="layui-btn layui-btn-danger" type='button' data-confirm="确定要取消编辑吗？" data-close>取消编辑</button>
+    </div>
+</form>
+
+<script>
+$(function () {
+    $('[name="cover"]').uploadOneImage();
+    $('[name="icon"]').on('change', function () {
+        $(this).parent().next().find('i').get(0).className = this.value;
+    });
+});
+</script>
