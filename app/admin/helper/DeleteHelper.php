@@ -66,7 +66,8 @@ class DeleteHelper extends Helper
         }
 
         // 执行删除操作
-        if ($result = (empty($data) ? $query->delete() : $query->update($data)) !== false) {
+        $result = empty($data) ? $query->delete() : $query->update($data);
+        if ($result !== false) {
             // 模型自定义事件回调
             $model = $query->getModel();
             if ($model instanceof \think\admin\Model) {
