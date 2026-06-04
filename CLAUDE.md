@@ -113,10 +113,10 @@ public function index() { ... }
 **数据列表**：
 ```php
 // 方式一：模型静态方法（推荐）
+// 继承 BaseModel 的模型自动过滤软删除，无需手动加条件
 SystemUser::mQuery()->layTable(function () {
     $this->title = '用户管理';
 }, function (QueryHelper $query) {
-    $query->where(['deleted' => 0]);
     $query->equal('status,usertype')->like('username')->dateBetween('create_at');
 });
 
@@ -470,7 +470,6 @@ class Example extends Controller
         ModelName::mQuery()->layTable(function () {
             $this->title = '示例管理';
         }, function (QueryHelper $query) {
-            $query->where(['deleted' => 0]);
             $query->equal('status')->like('name')->dateBetween('create_at');
         });
     }
@@ -527,6 +526,20 @@ class Example extends Controller
 - 权限模板判断统一用 `<!--{if auth("action")}-->...<!--{/if}-->` 注释语法。
 - 日志操作：`sysoplog('模块名', '操作描述')`。
 - 事件触发：`$this->app->event->trigger('事件名', $data)`。
+
+### 后台管理模块规范
+
+- 后台管理的内容都放在 `admin` 模块下（控制器、模型、视图、Helper）。
+- 所有新模型继承 `app\admin\model\BaseModel`（自带软删除过滤），不要直接继承 `think\admin\Model`。
+- 新模型统一使用 `deleted_at`（datetime, nullable）字段实现软删除，不使用 `deleted`/`is_deleted` 字段。
+- 控制器使用框架快捷方法：`mQuery()`、`mForm()`、`mSave()`、`mDelete()`，不要另造新方法名。
+- `BaseModel` 已重写 `mDelete()` 以支持 `deleted_at` 单字段软删除，控制器直接调用即可。
+
+### 树形分类规范
+
+- 使用 `pid` 字段实现父子关系，0 表示顶级。
+- 使用 `DataExtend::arr2tree()` 转树形结构，`DataExtend::arr2table()` 转平铺表格（带缩进）。
+- 限制三级深度，`spt >= 3` 的节点不能再添加子节点。
 
 ## 重要约束
 
