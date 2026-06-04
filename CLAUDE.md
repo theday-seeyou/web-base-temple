@@ -534,6 +534,7 @@ class Example extends Controller
 - 新模型统一使用 `deleted_at`（datetime, nullable）字段实现软删除，不使用 `deleted`/`is_deleted` 字段。
 - 控制器使用框架快捷方法：`mQuery()`、`mForm()`、`mSave()`、`mDelete()`，不要另造新方法名。
 - `BaseModel` 已重写 `mDelete()` 以支持 `deleted_at` 单字段软删除，控制器直接调用即可。
+- 当控制器与模型同名时，使用 `use app\admin\model\Category as CategoryModel` 别名引入，控制器内用 `CategoryModel::mXxx()` 调用。
 
 ### 树形分类规范
 
