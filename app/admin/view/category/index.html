@@ -23,7 +23,7 @@
             cols: [[
                 {checkbox: true, field: 'sps'},
                 {field: 'sort', title: '排序', width: 100, align: 'center', templet: '#SortInputTpl'},
-                {field: 'icon', title: '图标', width: 80, align: 'center'},
+                {field: 'icon', title: '图标', width: 80, align: 'center', templet: function(d){return d.icon ? '<i class="'+d.icon+' font-s18"></i>' : '-';}},
                 {field: 'title', title: '栏目名称', minWidth: 220, templet: '<div><span class="color-desc">{{d.spl}}</span>{{d.title}}</div>'},
                 {field: 'code', title: '栏目标识', width: 150},
                 {field: 'cover', title: '封面图', width: 100, align: 'center', templet: '#CoverTpl'},
