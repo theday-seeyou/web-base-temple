@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
-use app\admin\model\Category;
+use app\admin\model\Category as CategoryModel;
 use think\admin\Controller;
 use think\admin\extend\DataExtend;
 
@@ -22,7 +22,7 @@ class Category extends Controller
     public function index()
     {
         $this->title = '栏目管理';
-        Category::mQuery()->layTable();
+        CategoryModel::mQuery()->layTable();
     }
 
     /**
@@ -31,7 +31,7 @@ class Category extends Controller
      */
     public function add()
     {
-        Category::mForm('form');
+        CategoryModel::mForm('form');
     }
 
     /**
@@ -40,7 +40,7 @@ class Category extends Controller
      */
     public function edit()
     {
-        Category::mForm('form');
+        CategoryModel::mForm('form');
     }
 
     /**
@@ -49,7 +49,7 @@ class Category extends Controller
      */
     public function state()
     {
-        Category::mSave($this->_vali([
+        CategoryModel::mSave($this->_vali([
             'status.in:0,1' => '状态值范围异常！',
             'status.require' => '状态值不能为空！',
         ]));
@@ -61,7 +61,7 @@ class Category extends Controller
      */
     public function remove()
     {
-        Category::mDelete();
+        CategoryModel::mDelete();
     }
 
     /**
@@ -79,7 +79,7 @@ class Category extends Controller
     {
         if ($this->request->isGet()) {
             $vo['pid'] = $vo['pid'] ?? input('pid', '0');
-            $categories = Category::mk()->order('sort asc,id asc')->column('id,pid,title', 'id');
+            $categories = CategoryModel::mk()->order('sort asc,id asc')->column('id,pid,title', 'id');
             $this->categories = DataExtend::arr2table(array_merge($categories, [['id' => '0', 'pid' => '-1', 'title' => '顶级栏目']]));
             foreach ($this->categories as $key => $cate) {
                 if ($cate['spt'] >= 3) {
