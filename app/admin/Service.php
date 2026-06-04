@@ -47,6 +47,12 @@ class Service extends Plugin
     {
         return [
             [
+                'name' => '内容管理',
+                'subs' => [
+                    ['name' => '栏目管理', 'icon' => 'layui-icon layui-icon-app', 'node' => 'admin/category/index'],
+                ],
+            ],
+            [
                 'name' => '系统配置',
                 'subs' => [
                     ['name' => '系统参数配置', 'icon' => 'layui-icon layui-icon-set', 'node' => 'admin/config/index'],
