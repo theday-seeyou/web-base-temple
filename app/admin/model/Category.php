@@ -11,7 +11,6 @@ namespace app\admin\model;
  * @property int $pid 上级栏目ID
  * @property int $sort 排序
  * @property int $status 状态(0禁用,1启用)
- * @property string $code 栏目编码
  * @property string $cover 封面图
  * @property string $create_at 创建时间
  * @property string $deleted_at 删除时间

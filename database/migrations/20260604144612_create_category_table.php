@@ -37,12 +37,6 @@ final class CreateCategoryTable extends AbstractMigration
                 'default' => '',
                 'comment' => '栏目名称',
             ])
-            ->addColumn('code', 'string', [
-                'limit' => 50,
-                'null' => true,
-                'default' => null,
-                'comment' => '栏目标识',
-            ])
             ->addColumn('icon', 'string', [
                 'limit' => 100,
                 'null' => true,
@@ -87,7 +81,6 @@ final class CreateCategoryTable extends AbstractMigration
                 'comment' => '更新时间',
             ])
             ->addIndex(['pid'], ['name' => 'idx_pid'])
-            ->addIndex(['code'], ['unique' => true, 'name' => 'uniq_code'])
             ->create();
     }
 }
