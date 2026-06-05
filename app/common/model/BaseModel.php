@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-namespace app\admin\model;
+namespace app\common\model;
 
 use app\admin\helper\DeleteHelper;
-use think\admin\Model;
 
 /**
- * 后台管理基础模型.
+ * 应用模型基类.
  *
- * 所有新增的后台管理模型应继承此类。
+ * 所有应用模块下的新模型应继承此类。
  * 内置 SoftDelete 特性，使用 deleted_at（datetime）字段实现软删除。
  *
  * 使用方式：
@@ -21,7 +20,7 @@ use think\admin\Model;
  * @class BaseModel
  * @mixin \think\db\Query
  */
-abstract class BaseModel extends Model
+abstract class BaseModel extends \think\admin\Model
 {
     use \think\model\concern\SoftDelete;
 

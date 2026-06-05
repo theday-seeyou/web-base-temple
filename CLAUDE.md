@@ -49,6 +49,8 @@ app/
 │   ├── command/    CLI 命令
 │   ├── view/
 │   └── Service.php → zoujingli/think-plugs-wechat
+├── common/         公共模块（跨应用共享的基类和工具）
+│   └── model/      公共模型基类（BaseModel 等）
 └── index/          前台入口（默认重定向到后台登录）
 ```
 
@@ -530,11 +532,12 @@ class Example extends Controller
 ### 后台管理模块规范
 
 - 后台管理的内容都放在 `admin` 模块下（控制器、模型、视图、Helper）。
-- 所有新模型继承 `app\admin\model\BaseModel`（自带软删除过滤），不要直接继承 `think\admin\Model`。
+- 所有新模型继承 `app\common\model\BaseModel`（自带软删除过滤），不要直接继承 `think\admin\Model`。BaseModel 位于 `app/common/model/` 公共模块，所有应用模块共享。
 - 新模型统一使用 `deleted_at`（datetime, nullable）字段实现软删除，不使用 `deleted`/`is_deleted` 字段。
 - 控制器使用框架快捷方法：`mQuery()`、`mForm()`、`mSave()`、`mDelete()`，不要另造新方法名。
 - `BaseModel` 已重写 `mDelete()` 以支持 `deleted_at` 单字段软删除，控制器直接调用即可。
 - 当控制器与模型同名时，使用 `use app\admin\model\Category as CategoryModel` 别名引入，控制器内用 `CategoryModel::mXxx()` 调用。
+- 自定义 DeleteHelper（`app\admin\helper\DeleteHelper.php`）放在 admin 模块下，BaseModel 中引用它。如果其他模块也需要软删除，只需让模型继承 `app\common\model\BaseModel` 即可。
 
 ### 树形分类规范
 
