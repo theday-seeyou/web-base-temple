@@ -120,6 +120,17 @@ php think run --host 127.0.0.1
 | `http://127.0.0.1:8000/admin` | 后台管理 | admin/admin |
 | `http://127.0.0.1:8000/api` | API 接口 | - |
 
+### 部署注意事项
+
+> **⚠️ `ignore` 保护文件说明**
+>
+> 每个应用模块目录下都有 `ignore` 文件（如 `app/admin/ignore`、`app/wechat/ignore`），这是 ThinkAdmin 插件安装器的保护机制：**当目录下存在 `ignore` 文件时，`composer install` 不会覆盖该目录下的自定义代码**。
+>
+> - `ignore` 文件**必须保留，不要删除**
+> - 新增应用模块时，**必须创建对应的 `ignore` 文件**
+> - 如果误删了 `ignore` 文件，下次 `composer install` 可能会用包原始文件覆盖你的修改
+> - `vendor/` 目录不做版本管理，新环境部署时通过 `composer install` 安装依赖
+
 ### 首次使用指南
 
 1. **登录后台管理**
