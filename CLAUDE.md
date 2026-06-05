@@ -544,6 +544,17 @@ class Example extends Controller
 
 ## 重要约束
 
-### vendor 目录只读
+### vendor 目录不做版本管理
 
-`vendor/` 目录已纳入版本控制，但**禁止修改其中的任何代码**。vendor 目录是 Composer 依赖包，所有代码变更只能在 `app/`、`config/`、`public/` 等自有目录中进行。如果需要修改依赖包的行为，应通过继承、事件监听或中间件等方式在项目代码中实现。
+`vendor/` 目录已加入 `.gitignore`，**不做版本管理**。新环境部署时通过 `composer install` 安装依赖。
+
+### app 模块 ignore 保护文件
+
+每个应用模块目录下都有 `ignore` 文件（如 `app/admin/ignore`、`app/wechat/ignore`），这是 ThinkAdmin 插件安装器的保护机制：**当目录下存在 `ignore` 文件时，`composer install` 不会覆盖该目录下的自定义代码**。
+
+**重要：**
+- `ignore` 文件必须保留，**不要删除**
+- 新增应用模块时，**必须创建对应的 `ignore` 文件**，防止 composer 覆盖自定义内容
+- 如果删除了 `ignore` 文件，下次 `composer install` 可能会用包原始文件覆盖你的修改
+
+### vendor 目录代码禁止修改
