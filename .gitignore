@@ -5,6 +5,7 @@
 .fleet
 .vscode
 .DS_Store
+/vendor
 
 /runtime
 /safefile
