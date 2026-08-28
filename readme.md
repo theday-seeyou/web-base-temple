@@ -14,7 +14,7 @@ WebBase CMS 是面向企业官网的中英文内容管理系统，基于 ThinkPH
 推荐直接使用 Composer 创建独立站点：
 
 ```bash
-composer create-project theday-seeyou/web-base-temple my-company-site "^0.1"
+composer create-project theday-seeyou/web-base-temple my-company-site "^0.2"
 cd my-company-site
 ```
 
