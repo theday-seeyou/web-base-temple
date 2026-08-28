@@ -73,7 +73,7 @@ git commit -m "feat: create category table for content management"
 - Reference: `web-base-core/src/helper/DeleteHelper.php`（独立核心包仓库）
 - Reference: `web-base-core/src/Helper.php`（独立核心包仓库中的基类构造函数）
 
-逻辑与 vendor 的 `DeleteHelper` 完全一致，唯一区别是软删除检测：将 `deleted`/`is_deleted` 替换为 `deleted_at`。当表存在 `deleted_at` 字段时写入时间戳，不存在则硬删除。
+当前实现已统一由 `WebBase\Core\BaseModel` 管理软删除，只支持 nullable datetime `deleted_at`。删除助手不扫描或兼容其他字段；需要软删除的业务表必须显式包含 `deleted_at`。
 
 - [ ] **Step 1: 创建 helper 目录和 DeleteHelper 文件**
 

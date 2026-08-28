@@ -12,13 +12,13 @@ WebBase 使用两个独立 GitHub 与 Packagist 包：
 1. `composer validate --strict`
 2. PHP 语法检查和自动化测试
 3. 提交代码并推送 `main`
-4. 创建语义化版本标签，例如 `v0.2.0`
+4. 创建语义化版本标签，例如 `v0.3.0`
 5. 推送标签，等待 Packagist 自动更新
 
 安装指定版本：
 
 ```bash
-composer require theday-seeyou/web-base-core:^0.2
+composer require theday-seeyou/web-base-core:^0.3
 ```
 
 ## 发布 CMS
@@ -35,7 +35,7 @@ composer require theday-seeyou/web-base-core:^0.2
 使用临时目录验证正式发布包：
 
 ```bash
-composer create-project theday-seeyou/web-base-temple webbase-release-test "^0.2"
+composer create-project theday-seeyou/web-base-temple webbase-release-test "^0.3"
 ```
 
 测试目录中不得存在自定义 `repositories` 或本地 `path` 配置，确保安装内容确实来自 Packagist。

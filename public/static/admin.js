@@ -17,7 +17,7 @@ window.jQuery.fn.size || (window.jQuery.fn.size = () => this.length);
 /*! 配置 require 参数  */
 require.config({
     baseUrl: baseRoot, waitSeconds: 60,
-    map: {'*': {css: baseRoot + 'plugs/require/css.js'}},
+    map: {'*': {css: baseRoot + 'plugs/require/css.js', '@wangeditor/editor': '_weditor'}},
     paths: {
         // ---------- 自定义 ----------
         'excel': ['plugs/admin/excel'],
@@ -39,7 +39,6 @@ require.config({
         'echarts': ['plugs/echarts/echarts.min'],
         'weditor': ['plugs/editor/create'],
         'weditor-attachment': ['plugs/editor/upload-attachment'],
-        '@wangeditor/editor': ['plugs/editor/index'],
         'ckeditor4': ['plugs/ckeditor4/ckeditor'],
         'ckeditor5': ['plugs/ckeditor5/ckeditor'],
         'artplayer': ['plugs/jquery/artplayer.min'],

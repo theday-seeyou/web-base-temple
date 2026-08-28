@@ -77,7 +77,7 @@ class Login extends Controller
                 $this->error('图形验证码验证失败，请重新输入!');
             }
             /* ! 用户信息验证 */
-            $map = ['username' => $data['username'], 'is_deleted' => 0];
+            $map = ['username' => $data['username']];
             $user = SystemUser::mk()->where($map)->findOrEmpty();
             if ($user->isEmpty()) {
                 $this->app->session->set('LoginInputSessionError', true);
@@ -91,7 +91,7 @@ class Login extends Controller
                 $this->app->session->set('LoginInputSessionError', true);
                 $this->error('登录账号或密码错误，请重新输入!');
             }
-            $user->hidden(['sort', 'status', 'password', 'is_deleted']);
+            $user->hidden(['sort', 'status', 'password', 'deleted_at']);
             $this->app->session->set('user', $user->toArray());
             $this->app->session->delete('LoginInputSessionError');
             // 更新登录次数

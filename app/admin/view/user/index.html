@@ -8,12 +8,15 @@
 <!--{if auth("state")}-->
 <a data-confirm="{:lang('确定要禁用这些用户吗？')}" data-table-id="UserTable" data-action="{:url('state')}" data-rule="id#{id};status#0" class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('批量禁用')}</a>
 <!--{/if}-->
-{else}
-<!--{if auth("state")}-->
-<a data-confirm="{:lang('确定要恢复这些账号吗？')}" data-table-id="UserTable" data-action="{:url('state')}" data-rule="id#{id};status#1" class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('批量恢复')}</a>
-<!--{/if}-->
 <!--{if auth("remove")}-->
-<a data-confirm="{:lang('确定永久删除这些账号吗？')}" data-table-id="UserTable" data-action='{:url("remove")}' data-rule="id#{id}" class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('批量删除')}</a>
+<a data-confirm="确定要将这些用户移入回收站吗？" data-table-id="UserTable" data-action="{:url('remove')}" data-rule="id#{id}" class='layui-btn layui-btn-sm layui-btn-danger'>批量删除</a>
+<!--{/if}-->
+{else}
+<!--{if auth("restore")}-->
+<a data-confirm="{:lang('确定要恢复这些账号吗？')}" data-table-id="UserTable" data-action="{:url('restore')}" data-rule="id#{id}" class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('批量恢复')}</a>
+<!--{/if}-->
+<!--{if auth("destroy")}-->
+<a data-confirm="{:lang('确定永久删除这些账号吗？')}" data-table-id="UserTable" data-action='{:url("destroy")}' data-rule="id#{id}" class='layui-btn layui-btn-sm layui-btn-danger'>永久删除</a>
 <!--{/if}-->
 {/if}
 {/block}
@@ -40,7 +43,7 @@
             where: {type: '{$type|default="index"}'},
             cols: [[
                 {checkbox: true, fixed: true},
-                {field: 'sort', title: '{:lang("排序权重")}', width: 100, align: 'center', sort: true, templet: '#SortInputTpl'},
+                {field: 'sort', title: '{:lang("排序权重")}', width: 100, align: 'center', sort: true{if isset($type) and $type eq 'index'}, templet: '#SortInputTpl'{/if}},
                 {
                     field: 'headimg', title: '{:lang("头像")}', width: 60, align: 'center', templet: function (d) {
                         if (!d.headimg) return '-';
@@ -59,7 +62,8 @@
                 /* {/notempty} */
                 // {field: 'contact_mail', title: '联系邮箱', minWidth: 80, templet: '<div>{{d.contact_mail||"-"}}</div>'},
                 // {field: 'contact_phone', title: '联系电话', minWidth: 80, templet: '<div>{{d.contact_phone||"-"}}</div>'},
-                {field: 'status', title: '{:lang("使用状态")}', align: 'center', minWidth: 110, templet: '#StatusSwitchTpl'},
+                {field: 'status', title: '{:lang("使用状态")}', align: 'center', minWidth: 110{if isset($type) and $type eq 'index'}, templet: '#StatusSwitchTpl'{/if}},
+                {if isset($type) and $type eq 'recycle'}{field: 'deleted_at', title: '删除时间', align: 'center', minWidth: 170, sort: true},{/if}
                 {field: 'login_num', title: '{:lang("登录次数")}', align: 'center', minWidth: 100, sort: true},
                 {field: 'login_at', title: '{:lang("最后登录")}', align: 'center', minWidth: 170, sort: true},
                 {field: 'create_at', title: '{:lang("创建时间")}', align: 'center', minWidth: 170, sort: true},
@@ -104,12 +108,15 @@
     <!--{if auth("pass")}-->
     <a class="layui-btn layui-btn-sm layui-btn-normal" data-title="{:lang('设置密码')}" data-modal='{:url("pass")}?id={{d.id}}'>{:lang('密 码')}</a>
     <!--{/if}-->
-    {else}
-    <!--{if auth("edit")}-->
-    <a class="layui-btn layui-btn-sm" data-event-dbclick data-title="{:lang('编辑用户')}" data-modal='{:url("edit")}?id={{d.id}}'>{:lang('编 辑')}</a>
-    <!--{/if}-->
     <!--{if auth("remove")}-->
-    <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="{:lang('确定要永久删除吗？')}" data-action="{:url('remove')}" data-value="id#{{d.id}}">{:lang('删 除')}</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要将该用户移入回收站吗？" data-action="{:url('remove')}" data-value="id#{{d.id}}">删 除</a>
+    <!--{/if}-->
+    {else}
+    <!--{if auth("restore")}-->
+    <a class="layui-btn layui-btn-sm" data-confirm="确定要恢复该用户吗？" data-action="{:url('restore')}" data-value="id#{{d.id}}">恢 复</a>
+    <!--{/if}-->
+    <!--{if auth("destroy")}-->
+    <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="{:lang('确定要永久删除吗？')}" data-action="{:url('destroy')}" data-value="id#{{d.id}}">永久删除</a>
     <!--{/if}-->
     {/if}
 </script>

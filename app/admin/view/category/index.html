@@ -1,6 +1,7 @@
 {extend name='table'}
 
 {block name="button"}
+{if isset($type) and $type eq 'index'}
 <!--{if auth("add")}-->
 <button data-modal='{:url("add")}' data-table-id="CategoryTable" class='layui-btn layui-btn-sm layui-btn-primary'>添加栏目</button>
 <!--{/if}-->
@@ -8,10 +9,29 @@
 <!--{if auth("state")}-->
 <button data-action='{:url("state")}' data-table-id="CategoryTable" data-rule="id#{sps};status#0" class='layui-btn layui-btn-sm layui-btn-primary'>禁用栏目</button>
 <!--{/if}-->
+<!--{if auth("remove")}-->
+<button data-action='{:url("remove")}' data-table-id="CategoryTable" data-rule="id#{sps}" data-confirm="确定要将选中栏目移入回收站吗？" class='layui-btn layui-btn-sm layui-btn-danger'>批量删除</button>
+<!--{/if}-->
+{else}
+<!--{if auth("restore")}-->
+<button data-action='{:url("restore")}' data-table-id="CategoryTable" data-rule="id#{id}" data-confirm="确定要恢复选中栏目吗？" class='layui-btn layui-btn-sm layui-btn-primary'>批量恢复</button>
+<!--{/if}-->
+<!--{if auth("destroy")}-->
+<button data-action='{:url("destroy")}' data-table-id="CategoryTable" data-rule="id#{id}" data-confirm="永久删除后无法恢复，确定继续吗？" class='layui-btn layui-btn-sm layui-btn-danger'>永久删除</button>
+<!--{/if}-->
+{/if}
 {/block}
 
 {block name="content"}
-<table id="CategoryTable" data-url="{:sysuri()}" data-target-search="form.form-search"></table>
+<div class="layui-tab layui-tab-card">
+    <ul class="layui-tab-title">
+        <li class="{if isset($type) and $type eq 'index'}layui-this{/if}" data-open="{:url('index')}?type=index">栏目列表</li>
+        <li class="{if isset($type) and $type eq 'recycle'}layui-this{/if}" data-open="{:url('index')}?type=recycle">回 收 站</li>
+    </ul>
+    <div class="layui-tab-content">
+        <table id="CategoryTable" data-url="{:url('index')}" data-target-search="form.form-search"></table>
+    </div>
+</div>
 
 <script>
     $(function () {
@@ -19,14 +39,16 @@
             even: true,
             height: 'full',
             page: false,
+            where: {type: '{$type|default="index"}'},
             sort: {field: 'sort asc,id', type: 'asc'},
             cols: [[
-                {checkbox: true, field: 'sps'},
-                {field: 'sort', title: '排序', width: 100, align: 'center', templet: '#SortInputTpl'},
+                {checkbox: true, field: '{if isset($type) and $type eq "index"}sps{else}id{/if}'},
+                {field: 'sort', title: '排序', width: 100, align: 'center'{if isset($type) and $type eq 'index'}, templet: '#SortInputTpl'{/if}},
                 {field: 'icon', title: '图标', width: 80, align: 'center', templet: function(d){return d.icon ? '<i class="'+d.icon+' font-s18"></i>' : '-';}},
                 {field: 'title', title: '栏目名称', minWidth: 220, templet: '<div><span class="color-desc">{{d.spl}}</span>{{d.title}}</div>'},
                 {field: 'cover', title: '封面图', width: 100, align: 'center', templet: '#CoverTpl'},
-                {field: 'status', title: '状态', width: 120, align: 'center', templet: '#StatusSwitchTpl'},
+                {field: 'status', title: '状态', width: 120, align: 'center'{if isset($type) and $type eq 'index'}, templet: '#StatusSwitchTpl'{/if}},
+                {if isset($type) and $type eq 'recycle'}{field: 'deleted_at', title: '删除时间', width: 180, align: 'center', sort: true},{/if}
                 {toolbar: '#toolbar', title: '操作', width: 200, align: 'center', fixed: 'right'},
             ]]
         });
@@ -72,6 +94,7 @@
 
 <!-- 操控面板的模板 -->
 <script type="text/html" id="toolbar">
+    {if isset($type) and $type eq 'index'}
     <!--{if auth("add")}-->
     {{# if(d.spt < 2){ }}
     <a class="layui-btn layui-btn-sm layui-btn-primary" data-title="添加子栏目" data-modal='{:url("add")}?pid={{d.id}}'>添加</a>
@@ -87,5 +110,13 @@
     <!--{if auth("remove")}-->
     <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除该栏目吗？" data-action="{:url('remove')}" data-value="id#{{d.sps}}">删除</a>
     <!--{/if}-->
+    {else}
+    <!--{if auth("restore")}-->
+    <a class="layui-btn layui-btn-sm" data-confirm="确定要恢复该栏目吗？" data-action="{:url('restore')}" data-value="id#{{d.id}}">恢复</a>
+    <!--{/if}-->
+    <!--{if auth("destroy")}-->
+    <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="永久删除后无法恢复，确定继续吗？" data-action="{:url('destroy')}" data-value="id#{{d.id}}">永久删除</a>
+    <!--{/if}-->
+    {/if}
 </script>
 {/block}

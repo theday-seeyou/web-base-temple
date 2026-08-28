@@ -44,13 +44,11 @@ class User extends Controller
     public function index()
     {
         $this->type = $this->get['type'] ?? 'index';
-        SystemUser::mQuery()->layTable(function () {
+        $query = $this->type === 'recycle' ? SystemUser::mRecycleQuery() : SystemUser::mQuery();
+        $query->layTable(function () {
             $this->title = '系统用户管理';
             $this->bases = SystemBase::items('身份权限');
         }, function (QueryHelper $query) {
-            // 加载对应数据列表
-            $query->where(['is_deleted' => 0, 'status' => intval($this->type === 'index')]);
-
             // 关联用户身份资料
             /* @var \think\model\Relation|\think\db\Query $query */
             $query->with(['userinfo' => static function ($query) {
@@ -136,6 +134,26 @@ class User extends Controller
     }
 
     /**
+     * 恢复回收站用户.
+     * @auth true
+     */
+    public function restore()
+    {
+        $this->_checkInput();
+        SystemUser::mRestore();
+    }
+
+    /**
+     * 永久删除回收站用户.
+     * @auth true
+     */
+    public function destroy()
+    {
+        $this->_checkInput();
+        SystemUser::mForceDelete();
+    }
+
+    /**
      * 表单数据处理.
      * @throws DataNotFoundException
      * @throws DbException
@@ -153,8 +171,8 @@ class User extends Controller
             $data['authorize'] = arr2str($data['authorize'] ?? []);
             if (empty($data['id'])) {
                 // 检查账号是否重复
-                $map = ['username' => $data['username'], 'is_deleted' => 0];
-                if (SystemUser::mk()->where($map)->count() > 0) {
+                $map = ['username' => $data['username']];
+                if (SystemUser::mk()->withTrashed()->where($map)->count() > 0) {
                     $this->error('账号已经存在，请使用其它账号！');
                 }
                 // 新添加的用户密码与账号相同

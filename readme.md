@@ -14,7 +14,7 @@ WebBase CMS 是面向企业官网的中英文内容管理系统，基于 ThinkPH
 推荐直接使用 Composer 创建独立站点：
 
 ```bash
-composer create-project theday-seeyou/web-base-temple my-company-site "^0.2"
+composer create-project theday-seeyou/web-base-temple my-company-site "^0.3"
 cd my-company-site
 ```
 
@@ -130,6 +130,7 @@ Web 服务器的站点根目录必须指向 `public/`。不要把 `.env`、源�
 架构与发布流程：
 
 - [架构说明](docs/architecture.md)
+- [后台 CRUD、回收站与富文本编辑器](docs/crud-recycle-editor.md)
 - [Composer 发布说明](docs/publishing.md)
 - [第三方声明](THIRD_PARTY_NOTICES.md)
 

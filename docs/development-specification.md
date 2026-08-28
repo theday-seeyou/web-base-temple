@@ -98,7 +98,7 @@ PRIMARY KEY (`id`)
 支持软删除的表**必须**添加：
 
 ```sql
-`deleted` tinyint(1) UNSIGNED DEFAULT 0 COMMENT '删除状态(0正常,1已删)',
+`deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
 ```
 
 支持状态切换的表**应该**添加：
@@ -123,7 +123,7 @@ PRIMARY KEY (`id`)
 
 ### 3.4 索引规则
 
-- **必须**为查询条件字段添加索引（如 `status`、`deleted`、`cate_id`）
+- **必须**为查询条件字段添加索引（如 `status`、`deleted_at`、`cate_id`）
 - **必须**为唯一约束字段添加唯一索引（如 `code`、`short`）
 - 联合索引遵循最左前缀原则
 
@@ -183,9 +183,10 @@ class CmsTables extends Migrator
                 'default' => 0,
                 'comment' => '排序权重',
             ])
-            ->addColumn('deleted', 'boolean', [
-                'default' => 0,
-                'comment' => '删除状态',
+            ->addColumn('deleted_at', 'datetime', [
+                'null' => true,
+                'default' => null,
+                'comment' => '删除时间',
             ])
             ->addColumn('create_at', 'datetime', [
                 'null' => true,
@@ -195,7 +196,7 @@ class CmsTables extends Migrator
                 'null' => true,
                 'comment' => '更新时间',
             ])
-            ->addIndex(['status', 'deleted'], ['name' => 'idx_status_deleted'])
+            ->addIndex(['status', 'deleted_at'], ['name' => 'idx_status_deleted_at'])
             ->addIndex(['cate_id'], ['name' => 'idx_cate_id'])
             ->create();
     }
@@ -223,7 +224,7 @@ declare(strict_types=1);
 
 namespace app\admin\model;
 
-use WebBase\Core\Model;
+use WebBase\Core\BaseModel;
 
 /**
  * CMS文章模型.
@@ -235,12 +236,12 @@ use WebBase\Core\Model;
  * @property string $content 文章内容
  * @property int $status 状态(0禁用,1启用)
  * @property int $sort 排序权重
- * @property int $deleted 删除状态
+ * @property string|null $deleted_at 删除时间
  * @property string $create_at 创建时间
  * @property string $update_at 更新时间
  * @class CmsArticle
  */
-class CmsArticle extends Model
+class CmsArticle extends BaseModel
 {
     /**
      * 时间字段配置
@@ -248,11 +249,6 @@ class CmsArticle extends Model
     protected $createTime = 'create_at';
     protected $updateTime = 'update_at';
 
-    /**
-     * 软删除字段
-     */
-    protected $deleteTime = 'deleted';
-    protected $defaultSoftDelete = 0;
 }
 ```
 
@@ -394,11 +390,12 @@ public function remove()
 public function index()
 {
     $this->type = input('type', 'index');
-    CmsArticle::mQuery()->layTable(function () {
+    $query = $this->type === 'recycle'
+        ? CmsArticle::mRecycleQuery()
+        : CmsArticle::mQuery();
+    $query->layTable(function () {
         $this->title = '文章管理';
     }, function (QueryHelper $query) {
-        // 数据过滤条件
-        $query->where(['deleted' => 0]);
         $query->equal('status,cate_id')->like('title')->dateBetween('create_at');
     });
 }

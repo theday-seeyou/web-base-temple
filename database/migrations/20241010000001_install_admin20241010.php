@@ -113,12 +113,10 @@ class InstallAdmin20241010 extends Migrator
             ['content', 'text', ['default' => null, 'null' => true, 'comment' => '数据内容']],
             ['sort', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '排序权重']],
             ['status', 'integer', ['limit' => 1, 'default' => 1, 'null' => true, 'comment' => '数据状态(0禁用,1启动)']],
-            ['deleted', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '删除状态(0正常,1已删)']],
-            ['deleted_at', 'string', ['limit' => 20, 'default' => '', 'null' => true, 'comment' => '删除时间']],
-            ['deleted_by', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '删除用户']],
+            ['deleted_at', 'datetime', ['default' => null, 'null' => true, 'comment' => '删除时间']],
             ['create_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'null' => true, 'comment' => '创建时间']],
         ], [
-            'type', 'code', 'sort', 'status', 'deleted',
+            'type', 'code', 'sort', 'status', 'deleted_at',
         ], true);
     }
 
@@ -312,10 +310,10 @@ class InstallAdmin20241010 extends Migrator
             ['describe', 'string', ['limit' => 255, 'default' => '', 'null' => true, 'comment' => '备注说明']],
             ['sort', 'biginteger', ['limit' => 20, 'default' => 0, 'null' => true, 'comment' => '排序权重']],
             ['status', 'integer', ['limit' => 1, 'default' => 1, 'null' => true, 'comment' => '状态(0禁用,1启用)']],
-            ['is_deleted', 'integer', ['limit' => 1, 'default' => 0, 'null' => true, 'comment' => '删除(1删除,0未删)']],
+            ['deleted_at', 'datetime', ['default' => null, 'null' => true, 'comment' => '删除时间']],
             ['create_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'null' => true, 'comment' => '创建时间']],
         ], [
-            'sort', 'status', 'username', 'is_deleted',
+            'sort', 'status', 'username', 'deleted_at',
         ], true);
     }
 }

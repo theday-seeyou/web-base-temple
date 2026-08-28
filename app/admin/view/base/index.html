@@ -1,6 +1,7 @@
 {extend name='table'}
 
 {block name="button"}
+{if isset($scope) and $scope eq 'index'}
 <!--{if auth("add")}-->
 <button data-table-id="BaseTable" data-modal='{:url("add")}?type={$type|default=""}' class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('添加数据')}</button>
 <!--{/if}-->
@@ -8,18 +9,28 @@
 <!--{if auth("remove")}-->
 <button data-table-id="BaseTable" data-action='{:url("remove")}' data-rule="id#{id}" data-confirm="{:lang('确定要批量删除数据吗？')}" class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('批量删除')}</button>
 <!--{/if}-->
+{else}
+<!--{if auth("restore")}-->
+<button data-table-id="BaseTable" data-action='{:url("restore")}' data-rule="id#{id}" data-confirm="确定要恢复选中的数据吗？" class='layui-btn layui-btn-sm layui-btn-primary'>批量恢复</button>
+<!--{/if}-->
+<!--{if auth("destroy")}-->
+<button data-table-id="BaseTable" data-action='{:url("destroy")}' data-rule="id#{id}" data-confirm="永久删除后无法恢复，确定继续吗？" class='layui-btn layui-btn-sm layui-btn-danger'>永久删除</button>
+<!--{/if}-->
+{/if}
 {/block}
 
 {block name="content"}
 <div class="layui-tab layui-tab-card">
     <ul class="layui-tab-title">
-        {foreach $types as $t}{if isset($type) and $type eq $t}
-        <li class="layui-this" data-open="{:sysuri()}?type={$t}">{$t}</li>
-        {else}
-        <li data-open="{:sysuri()}?type={$t}">{$t}</li>
-        {/if}{/foreach}
+        <li class="{if isset($scope) and $scope eq 'index'}layui-this{/if}" data-open="{:url('index')}?scope=index">正常数据</li>
+        <li class="{if isset($scope) and $scope eq 'recycle'}layui-this{/if}" data-open="{:url('index')}?scope=recycle">回 收 站</li>
     </ul>
     <div class="layui-tab-content">
+        <div class="margin-bottom-10">
+            {foreach $types as $t}
+            <a data-open="{:url('index')}?scope={$scope|default='index'}&type={$t}" class="layui-btn layui-btn-sm {if isset($type) and $type eq $t}layui-btn-normal{else}layui-btn-primary{/if}">{$t}</a>
+            {/foreach}
+        </div>
         {include file='base/index_search'}
         <table id="BaseTable" data-url="{:request()->url()}" data-target-search="form.form-search"></table>
     </div>
@@ -33,14 +44,15 @@
         $('#BaseTable').layTable({
             even: true, height: 'full',
             sort: {field: 'sort desc,id', type: 'asc'},
-            where: {type: '{$type|default=""}'},
+            where: {scope: '{$scope|default="index"}', type: '{$type|default=""}'},
             cols: [[
                 {checkbox: true, fixed: true},
-                {field: 'sort', title: '{:lang("排序权重")}', width: 100, align: 'center', sort: true, templet: '#SortInputTpl'},
+                {field: 'sort', title: '{:lang("排序权重")}', width: 100, align: 'center', sort: true{if isset($scope) and $scope eq 'index'}, templet: '#SortInputTpl'{/if}},
                 // {field: 'type', title: '数据类型', minWidth: 140, align: 'center'},
                 {field: 'code', title: '{:lang("数据编码")}', width: '20%', align: 'left'},
                 {field: 'name', title: '{:lang("数据名称")}', width: '30%', align: 'left'},
-                {field: 'status', title: '{:lang("数据状态")}', minWidth: 110, align: 'center', templet: '#StatusSwitchTpl'},
+                {field: 'status', title: '{:lang("数据状态")}', minWidth: 110, align: 'center'{if isset($scope) and $scope eq 'index'}, templet: '#StatusSwitchTpl'{/if}},
+                {if isset($scope) and $scope eq 'recycle'}{field: 'deleted_at', title: '删除时间', minWidth: 170, align: 'center', sort: true},{/if}
                 {field: 'create_at', title: '{:lang("创建时间")}', minWidth: 170, align: 'center', sort: true},
                 {toolbar: '#toolbar', align: 'center', minWidth: 150, title: '{:lang("数据操作")}', fixed: 'right'},
             ]]
@@ -75,6 +87,7 @@
 
 <!-- 数据操作工具条模板 -->
 <script type="text/html" id="toolbar">
+    {if isset($scope) and $scope eq 'index'}
     <!--{if auth('edit')}-->
     <a class="layui-btn layui-btn-primary layui-btn-sm" data-event-dbclick data-title="{:lang('编辑数据')}" data-modal='{:url("edit")}?id={{d.id}}'>{:lang('编 辑')}</a>
     <!--{/if}-->
@@ -82,5 +95,13 @@
     <!--{if auth("remove")}-->
     <a class="layui-btn layui-btn-danger layui-btn-sm" data-confirm="{:lang('确定要删除数据吗?')}" data-action="{:url('remove')}" data-value="id#{{d.id}}">{:lang('删 除')}</a>
     <!--{/if}-->
+    {else}
+    <!--{if auth('restore')}-->
+    <a class="layui-btn layui-btn-primary layui-btn-sm" data-confirm="确定要恢复该数据吗？" data-action="{:url('restore')}" data-value="id#{{d.id}}">恢 复</a>
+    <!--{/if}-->
+    <!--{if auth('destroy')}-->
+    <a class="layui-btn layui-btn-danger layui-btn-sm" data-confirm="永久删除后无法恢复，确定继续吗？" data-action="{:url('destroy')}" data-value="id#{{d.id}}">永久删除</a>
+    <!--{/if}-->
+    {/if}
 </script>
 {/block}

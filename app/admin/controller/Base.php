@@ -40,12 +40,14 @@ class Base extends Controller
      */
     public function index()
     {
-        SystemBase::mQuery()->layTable(function () {
+        $this->scope = input('scope', 'index');
+        $query = $this->scope === 'recycle' ? SystemBase::mRecycleQuery() : SystemBase::mQuery();
+        $query->layTable(function () {
             $this->title = '数据字典管理';
-            $this->types = SystemBase::types();
+            $this->types = SystemBase::types(false, $this->scope === 'recycle');
             $this->type = $this->get['type'] ?? ($this->types[0] ?? '-');
         }, static function (QueryHelper $query) {
-            $query->where(['deleted' => 0])->equal('type');
+            $query->equal('type');
             $query->like('code,name,status')->dateBetween('create_at');
         });
     }
@@ -90,6 +92,24 @@ class Base extends Controller
     }
 
     /**
+     * 恢复回收站数据.
+     * @auth true
+     */
+    public function restore()
+    {
+        SystemBase::mRestore();
+    }
+
+    /**
+     * 永久删除回收站数据.
+     * @auth true
+     */
+    public function destroy()
+    {
+        SystemBase::mForceDelete();
+    }
+
+    /**
      * 表单数据处理.
      * @throws DbException
      */
@@ -101,11 +121,10 @@ class Base extends Controller
             $this->type = $this->get['type'] ?? ($this->types[0] ?? '-');
         } else {
             $map = [];
-            $map[] = ['deleted', '=', 0];
             $map[] = ['code', '=', $data['code']];
             $map[] = ['type', '=', $data['type']];
             $map[] = ['id', '<>', $data['id'] ?? 0];
-            if (SystemBase::mk()->where($map)->count() > 0) {
+            if (SystemBase::mk()->withTrashed()->where($map)->count() > 0) {
                 $this->error('数据编码已经存在！');
             }
         }

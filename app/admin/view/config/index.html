@@ -43,7 +43,7 @@
     </div>
     <div class="layui-card-body layui-clear">
         <div class="layui-btn-group shadow-mini">
-            {if !in_array(sysconf('base.editor'),['ckeditor4','ckeditor5','wangEditor','auto'])}{php}sysconf('base.editor','ckeditor4');{/php}{/if}
+            {if !in_array(sysconf('base.editor'),['ckeditor4','ckeditor5','wangEditor','auto'])}{php}sysconf('base.editor','wangEditor');{/php}{/if}
             {foreach ['ckeditor4'=>'CKEditor4','ckeditor5'=>'CKEditor5','wangEditor'=>'wangEditor','auto'=>lang('自适应模式')] as $k => $v}{if sysconf('base.editor') eq $k}
             {if auth('storage')}<a data-title="配置{$v}" class="layui-btn layui-btn-sm layui-btn-active">{$v}</a>{else}<a class="layui-btn layui-btn-sm layui-btn-active">{$v}</a>{/if}
             {else}
@@ -70,7 +70,7 @@
     {if !sysconf('storage.type')}{php}sysconf('storage.type','local');{/php}{/if}
     {if !sysconf('storage.link_type')}{php}sysconf('storage.link_type','none');{/php}{/if}
     {if !sysconf('storage.name_type')}{php}sysconf('storage.name_type','xmd5');{/php}{/if}
-    {if !sysconf('storage.allow_exts')}{php}sysconf('storage.allow_exts','doc,gif,ico,jpg,mp3,mp4,p12,pem,png,rar,xls,xlsx');{/php}{/if}
+    {if !sysconf('storage.allow_exts')}{php}sysconf('storage.allow_exts','bmp,csv,doc,docx,gif,ico,jpeg,jpg,mp3,mp4,p12,pdf,pem,png,ppt,pptx,rar,txt,xls,xlsx,zip');{/php}{/if}
     {if !sysconf('storage.local_http_protocol')}{php}sysconf('storage.local_http_protocol','follow');{/php}{/if}
     <div class="layui-card-body">
         <div class="layui-btn-group shadow-mini nowrap">

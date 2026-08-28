@@ -22,7 +22,9 @@ class Category extends Controller
     public function index()
     {
         $this->title = '栏目管理';
-        CategoryModel::mQuery()->layTable();
+        $this->type = input('type', 'index');
+        $query = $this->type === 'recycle' ? CategoryModel::mRecycleQuery() : CategoryModel::mQuery();
+        $query->layTable();
     }
 
     /**
@@ -65,11 +67,31 @@ class Category extends Controller
     }
 
     /**
+     * 恢复回收站栏目.
+     * @auth true
+     */
+    public function restore()
+    {
+        CategoryModel::mRestore();
+    }
+
+    /**
+     * 永久删除回收站栏目.
+     * @auth true
+     */
+    public function destroy()
+    {
+        CategoryModel::mForceDelete();
+    }
+
+    /**
      * 列表数据处理，将平级数据转换为树形表格.
      */
     protected function _index_page_filter(array &$data)
     {
-        $data = DataExtend::arr2table(DataExtend::arr2tree($data));
+        if (input('type', 'index') === 'index') {
+            $data = DataExtend::arr2table(DataExtend::arr2tree($data));
+        }
     }
 
     /**
