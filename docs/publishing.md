@@ -18,7 +18,7 @@ WebBase 使用两个独立 GitHub 与 Packagist 包：
 安装指定版本：
 
 ```bash
-composer require theday-seeyou/web-base-core:^0.1
+composer require theday-seeyou/web-base-core:^0.2
 ```
 
 ## 发布 CMS
@@ -35,7 +35,7 @@ composer require theday-seeyou/web-base-core:^0.1
 使用临时目录验证正式发布包：
 
 ```bash
-composer create-project theday-seeyou/web-base-temple webbase-release-test "^0.1"
+composer create-project theday-seeyou/web-base-temple webbase-release-test "^0.2"
 ```
 
 测试目录中不得存在自定义 `repositories` 或本地 `path` 配置，确保安装内容确实来自 Packagist。
