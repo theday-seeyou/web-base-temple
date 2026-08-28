@@ -11,8 +11,11 @@
 ### WebBase Core
 
 - Composer 包：`theday-seeyou/web-base-core`
-- 代码位置：`packages/web-base-core`
+- 代码仓库：<https://github.com/theday-seeyou/web-base-core>
+- 本地开发建议位置：与 CMS 平级的 `web-base-core/` 目录
 - 职责：后台基础能力、RBAC、CRUD、存储、队列和通用服务
+
+CMS 只依赖 Packagist 发布的核心版本。两个仓库独立提交、独立打标签，避免 CMS 的安装过程执行本地包复制或覆盖逻辑。
 
 ## 模板系统方向
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9904646a90f5c645cd39d37831ce2c03",
+    "content-hash": "f874cb00954c7bcdfa3696f2624c484b",
     "packages": [
         {
             "name": "psr/container",
@@ -280,11 +280,17 @@
         },
         {
             "name": "theday-seeyou/web-base-core",
-            "version": "0.1.0",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/theday-seeyou/web-base-core.git",
+                "reference": "cf2b8a764e460cc0121a4168dbec021b2318b337"
+            },
             "dist": {
-                "type": "path",
-                "url": "packages/web-base-core",
-                "reference": "3eb114bd8877b5830132bec62fc68b0b9862723f"
+                "type": "zip",
+                "url": "https://api.github.com/repos/theday-seeyou/web-base-core/zipball/cf2b8a764e460cc0121a4168dbec021b2318b337",
+                "reference": "cf2b8a764e460cc0121a4168dbec021b2318b337",
+                "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
@@ -319,11 +325,7 @@
                     "WebBase\\Core\\": "src"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "WebBase\\Core\\Tests\\": "tests"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -340,13 +342,10 @@
                 "webbase"
             ],
             "support": {
-                "source": "https://github.com/theday-seeyou/web-base-core",
-                "issues": "https://github.com/theday-seeyou/web-base-core/issues"
+                "issues": "https://github.com/theday-seeyou/web-base-core/issues",
+                "source": "https://github.com/theday-seeyou/web-base-core"
             },
-            "transport-options": {
-                "symlink": false,
-                "relative": true
-            }
+            "time": "2026-08-28T10:12:19+00:00"
         },
         {
             "name": "topthink/framework",

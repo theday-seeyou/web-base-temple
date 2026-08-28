@@ -1,39 +1,41 @@
 # Composer 发布流程
 
-## GitHub 仓库
+WebBase 使用两个独立 GitHub 与 Packagist 包：
 
-计划维护两个仓库：
+- CMS：`theday-seeyou/web-base-temple`
+- 核心包：`theday-seeyou/web-base-core`
 
-- `theday-seeyou/web-base-temple`
-- `theday-seeyou/web-base-core`
+## 发布核心包
 
-## 核心包发布
+在 `web-base-core` 仓库执行：
 
-1. 将 `packages/web-base-core` 拆分到独立仓库。
-2. 执行 `composer validate --strict`。
-3. 执行 PHP 语法检查和测试。
-4. 创建语义化版本标签，例如 `v0.1.0`。
-5. 在 Packagist 提交 GitHub 仓库 URL。
-6. 配置 GitHub/Packagist 自动更新。
+1. `composer validate --strict`
+2. PHP 语法检查和自动化测试
+3. 提交代码并推送 `main`
+4. 创建语义化版本标签，例如 `v0.2.0`
+5. 推送标签，等待 Packagist 自动更新
 
-发布后安装：
+安装指定版本：
 
 ```bash
 composer require theday-seeyou/web-base-core:^0.1
 ```
 
-## CMS 发布
+## 发布 CMS
 
-核心包发布后，从 CMS 的 `composer.json` 删除本地 `path` repository，并保留正式依赖：
+在 `web-base-temple` 仓库执行：
 
-```json
-"theday-seeyou/web-base-core": "^0.1"
-```
+1. 将 `composer.json` 中的核心包约束更新到已发布版本。
+2. 执行 `composer update theday-seeyou/web-base-core --with-all-dependencies`。
+3. 执行迁移、后台登录页和最小启动测试。
+4. 提交 `composer.json` 与 `composer.lock`。
+5. 创建 CMS 版本标签并推送。
+6. 等待 Packagist 自动更新。
 
-然后提交 `composer.lock`、创建 CMS 版本标签，并在 Packagist 注册。
-
-发布后安装：
+使用临时目录验证正式发布包：
 
 ```bash
-composer create-project theday-seeyou/web-base-temple my-site
+composer create-project theday-seeyou/web-base-temple webbase-release-test "^0.1"
 ```
+
+测试目录中不得存在自定义 `repositories` 或本地 `path` 配置，确保安装内容确实来自 Packagist。

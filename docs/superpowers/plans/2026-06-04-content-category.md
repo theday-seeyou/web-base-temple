@@ -27,7 +27,7 @@
 ### Task 1: 创建数据库表
 
 **Files:**
-- Reference: `packages/web-base-core/src/model/SystemMenu.php` (现有表结构参考)
+- Reference: `web-base-core/src/model/SystemMenu.php`（独立核心包仓库中的现有表结构参考）
 
 - [ ] **Step 1: 执行 SQL 创建 category 表**
 
@@ -70,8 +70,8 @@ git commit -m "feat: create category table for content management"
 
 **Files:**
 - Create: `app/admin/helper/DeleteHelper.php`
-- Reference: `packages/web-base-core/src/helper/DeleteHelper.php` (vendor 原版，不可修改)
-- Reference: `packages/web-base-core/src/Helper.php` (基类构造函数)
+- Reference: `web-base-core/src/helper/DeleteHelper.php`（独立核心包仓库）
+- Reference: `web-base-core/src/Helper.php`（独立核心包仓库中的基类构造函数）
 
 逻辑与 vendor 的 `DeleteHelper` 完全一致，唯一区别是软删除检测：将 `deleted`/`is_deleted` 替换为 `deleted_at`。当表存在 `deleted_at` 字段时写入时间戳，不存在则硬删除。
 
@@ -173,7 +173,7 @@ git commit -m "feat: add custom DeleteHelper with deleted_at soft delete support
 
 **Files:**
 - Create: `app/admin/model/BaseModel.php`
-- Reference: `packages/web-base-core/src/Model.php` (框架基类)
+- Reference: `web-base-core/src/Model.php`（独立核心包仓库中的框架基类）
 - Reference: `vendor/topthink/think-orm/src/model/concern/SoftDelete.php` (SoftDelete trait)
 
 BaseModel 继承 `WebBase\Core\Model`，引入 `SoftDelete` trait 实现查询自动过滤，并重写 `mDelete()` 静态方法路由到自定义 DeleteHelper。
@@ -232,7 +232,7 @@ class BaseModel extends \WebBase\Core\Model
 }
 ```
 
-**注意：** `DeleteHelper::instance()` 来自 `Helper` 基类的 `instance()` 方法（`packages/web-base-core/src/Helper.php:79-82`），调用 `Container::invokeClass()` 创建实例，构造函数 `App $app, Controller $class` 由容器从当前请求上下文自动解析注入。调用时不传参数，然后链式调用 `->init()` 传入模型类名和条件。
+**注意：** `DeleteHelper::instance()` 来自 `Helper` 基类的 `instance()` 方法（独立仓库 `web-base-core/src/Helper.php:79-82`），调用 `Container::invokeClass()` 创建实例，构造函数 `App $app, Controller $class` 由容器从当前请求上下文自动解析注入。调用时不传参数，然后链式调用 `->init()` 传入模型类名和条件。
 
 - [ ] **Step 2: Commit**
 
@@ -305,7 +305,7 @@ git commit -m "feat: add Category model"
 **Files:**
 - Create: `app/admin/controller/Category.php`
 - Reference: `app/admin/controller/Menu.php` (树形列表 + 表单处理参考)
-- Reference: `packages/web-base-core/src/extend/DataExtend.php` (arr2tree/arr2table)
+- Reference: `web-base-core/src/extend/DataExtend.php`（独立核心包仓库中的 arr2tree/arr2table）
 
 - [ ] **Step 1: 创建 Category 控制器**
 

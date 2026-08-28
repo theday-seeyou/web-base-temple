@@ -3,7 +3,7 @@
 ## 项目边界
 
 - 仓库根目录是 CMS 项目。
-- `packages/web-base-core` 是可独立发布的 Composer 核心包。
+- 核心包位于独立仓库 `theday-seeyou/web-base-core`，不嵌入 CMS 仓库。
 - CMS 业务代码使用 `app\\` 命名空间。
 - 核心包使用 `WebBase\\Core\\` 命名空间。
 
@@ -18,6 +18,6 @@
 ## 发布规则
 
 - 核心包使用语义化版本，例如 `v0.1.0`。
-- CMS 只依赖已发布的稳定核心版本；本仓库联调阶段可使用 `path` 仓库。
+- CMS 只依赖 Packagist 已发布的稳定核心版本，不使用本地 `path` 仓库。
 - 发布前执行 Composer 校验、PHP 语法检查和最小启动测试。
 - 第三方许可证与版权声明不得删除。
