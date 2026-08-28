@@ -18,8 +18,6 @@ final class UnifySoftDeleteFields extends AbstractMigration
         if ($base->hasColumn('deleted_at')) {
             if ($base->hasColumn('deleted')) {
                 $this->execute("UPDATE `system_base` SET `deleted_at` = CASE WHEN `deleted` = 1 THEN COALESCE(NULLIF(`deleted_at`, ''), '{$now}') ELSE NULL END");
-            } else {
-                $this->execute("UPDATE `system_base` SET `deleted_at` = NULL WHERE `deleted_at` = ''");
             }
             $base->changeColumn('deleted_at', 'datetime', [
                 'null' => true,
