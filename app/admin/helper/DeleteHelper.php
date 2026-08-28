@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace app\admin\helper;
 
-use think\admin\Helper;
+use WebBase\Core\Helper;
 use think\db\BaseQuery;
 use think\db\exception\DbException;
 use think\Model;
@@ -70,7 +70,7 @@ class DeleteHelper extends Helper
         if ($result !== false) {
             // 模型自定义事件回调
             $model = $query->getModel();
-            if ($model instanceof \think\admin\Model) {
+            if ($model instanceof \WebBase\Core\Model) {
                 $model->onAdminDelete(strval($value));
             }
         }

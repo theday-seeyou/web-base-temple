@@ -3,33 +3,30 @@
 declare(strict_types=1);
 /**
  * +----------------------------------------------------------------------
- * | ThinkAdmin Plugin for ThinkAdmin
+ * | WebBase CMS Component
  * +----------------------------------------------------------------------
- * | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
+ * | Copyright (c) 2026 WebBase contributors
  * +----------------------------------------------------------------------
- * | 官方网站: https://thinkadmin.top
+ * | 官方网站: https://github.com/theday-seeyou/web-base-temple
  * +----------------------------------------------------------------------
  * | 开源协议 ( https://mit-license.org )
- * | 免责声明 ( https://thinkadmin.top/disclaimer )
- * | 会员特权 ( https://thinkadmin.top/vip-introduce )
  * +----------------------------------------------------------------------
- * | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
- * | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+ * | github 代码仓库：https://github.com/theday-seeyou/web-base-temple
  * +----------------------------------------------------------------------
  */
 
 namespace app\admin\controller;
 
-use think\admin\Controller;
-use think\admin\Plugin;
-use think\admin\service\AdminService;
-use think\admin\service\ModuleService;
-use think\admin\service\RuntimeService;
-use think\admin\service\SystemService;
-use think\admin\Storage;
-use think\admin\storage\AliossStorage;
-use think\admin\storage\QiniuStorage;
-use think\admin\storage\TxcosStorage;
+use WebBase\Core\Controller;
+use WebBase\Core\Plugin;
+use WebBase\Core\service\AdminService;
+use WebBase\Core\service\ModuleService;
+use WebBase\Core\service\RuntimeService;
+use WebBase\Core\service\SystemService;
+use WebBase\Core\Storage;
+use WebBase\Core\storage\AliossStorage;
+use WebBase\Core\storage\QiniuStorage;
+use WebBase\Core\storage\TxcosStorage;
 
 /**
  * 系统参数配置.
@@ -63,7 +60,7 @@ class Config extends Controller
         $this->issuper = AdminService::isSuper();
         $this->systemid = ModuleService::getRunVar('uni');
         $this->framework = ModuleService::getLibrarys('topthink/framework');
-        $this->thinkadmin = ModuleService::getLibrarys('zoujingli/think-library');
+        $this->webbase = ModuleService::getLibrarys('theday-seeyou/web-base-core');
         if (AdminService::isSuper() && $this->app->session->get('user.password') === md5('admin')) {
             $url = url('admin/index/pass', ['id' => AdminService::getUserId()]);
             $this->showErrorMessage = lang("超级管理员账号的密码未修改，建议立即<a data-modal='%s'>修改密码</a>！", [$url]);
@@ -80,7 +77,7 @@ class Config extends Controller
     /**
      * 修改系统参数.
      * @auth true
-     * @throws \think\admin\Exception
+     * @throws \WebBase\Core\Exception
      */
     public function system()
     {
@@ -122,7 +119,7 @@ class Config extends Controller
     /**
      * 修改文件存储.
      * @auth true
-     * @throws \think\admin\Exception
+     * @throws \WebBase\Core\Exception
      */
     public function storage()
     {

@@ -1,6 +1,6 @@
-# ThinkAdmin 开发规范文档
+# WebBase CMS 开发规范文档
 
-> 本文档定义了基于 ThinkAdmin（ThinkPHP 6/8）基础模板开发新功能模块时必须遵守的规范和约定。
+> 本文档定义了基于 WebBase CMS（ThinkPHP 6/8）基础模板开发新功能模块时必须遵守的规范和约定。
 
 ## 1. 概述
 
@@ -214,7 +214,7 @@ php think migrate:run
 
 ### 4.1 模型类结构
 
-模型**必须**继承 `think\admin\Model`，并添加 `@property` 注解：
+模型**必须**继承 `WebBase\Core\Model`，并添加 `@property` 注解：
 
 ```php
 <?php
@@ -223,7 +223,7 @@ declare(strict_types=1);
 
 namespace app\admin\model;
 
-use think\admin\Model;
+use WebBase\Core\Model;
 
 /**
  * CMS文章模型.
@@ -297,7 +297,7 @@ public function category(): BelongsTo
 
 ### 5.1 控制器类结构
 
-控制器**必须**继承 `think\admin\Controller`，**必须**添加 `declare(strict_types=1)`：
+控制器**必须**继承 `WebBase\Core\Controller`，**必须**添加 `declare(strict_types=1)`：
 
 ```php
 <?php
@@ -306,9 +306,9 @@ declare(strict_types=1);
 
 namespace app\admin\controller\cms;
 
-use think\admin\Controller;
-use think\admin\helper\QueryHelper;
-use think\admin\model\CmsArticle;
+use WebBase\Core\Controller;
+use WebBase\Core\helper\QueryHelper;
+use WebBase\Core\model\CmsArticle;
 
 /**
  * CMS文章管理.

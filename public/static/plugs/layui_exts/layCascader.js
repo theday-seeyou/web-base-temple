@@ -4,7 +4,6 @@
  * 其他功能：组件禁用、节点禁用、自定义属性、自定义空面板提示，自定义无选择时的提示、多选标签折叠、回显、搜索、动态加载、最大选中数量限制、禁用项固定等操作。
  * element-ui没有的功能：最大选中数量限制、禁用项固定
  * author: yixiaco
- * gitee: https://gitee.com/yixiacoco/lay_cascader
  * github: https://github.com/yixiaco/lay_cascader
  */
 layui.define(["jquery"], function (exports) {

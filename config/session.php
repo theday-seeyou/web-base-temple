@@ -1,17 +1,15 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | Static Plugin for ThinkAdmin
+// | WebBase CMS Configuration
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2024 ThinkAdmin [ thinkadmin.top ]
+// | Copyright (c) 2026 WebBase contributors
 // +----------------------------------------------------------------------
-// | 官方网站: https://thinkadmin.top
+// | 官方网站: https://github.com/theday-seeyou/web-base-temple
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
-// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-static
-// | github 代码仓库：https://github.com/zoujingli/think-plugs-static
+// | github 代码仓库：https://github.com/theday-seeyou/web-base-temple
 // +----------------------------------------------------------------------
 
 return [

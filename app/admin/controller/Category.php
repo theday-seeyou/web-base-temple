@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace app\admin\controller;
 
 use app\admin\model\Category as CategoryModel;
-use think\admin\Controller;
-use think\admin\extend\DataExtend;
+use WebBase\Core\Controller;
+use WebBase\Core\extend\DataExtend;
 
 /**
  * 栏目管理控制器.

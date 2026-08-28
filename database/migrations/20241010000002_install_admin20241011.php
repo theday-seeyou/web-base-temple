@@ -3,24 +3,21 @@
 declare(strict_types=1);
 /**
  * +----------------------------------------------------------------------
- * | ThinkAdmin Plugin for ThinkAdmin
+ * | WebBase CMS Component
  * +----------------------------------------------------------------------
- * | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
+ * | Copyright (c) 2026 WebBase contributors
  * +----------------------------------------------------------------------
- * | 官方网站: https://thinkadmin.top
+ * | 官方网站: https://github.com/theday-seeyou/web-base-temple
  * +----------------------------------------------------------------------
  * | 开源协议 ( https://mit-license.org )
- * | 免责声明 ( https://thinkadmin.top/disclaimer )
- * | 会员特权 ( https://thinkadmin.top/vip-introduce )
  * +----------------------------------------------------------------------
- * | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
- * | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+ * | github 代码仓库：https://github.com/theday-seeyou/web-base-temple
  * +----------------------------------------------------------------------
  */
 use app\admin\Service;
-use think\admin\extend\PhinxExtend;
-use think\admin\model\SystemConfig;
-use think\admin\model\SystemUser;
+use WebBase\Core\extend\PhinxExtend;
+use WebBase\Core\model\SystemConfig;
+use WebBase\Core\model\SystemUser;
 use think\migration\Migrator;
 
 @set_time_limit(0);
@@ -60,7 +57,7 @@ class InstallAdmin20241011 extends Migrator
             'username' => 'admin',
             'nickname' => '超级管理员',
             'password' => '21232f297a57a5a743894a0e4a801fc3',
-            'headimg' => 'https://thinkadmin.top/static/img/head.png',
+            'headimg' => '/static/theme/img/headimg.png',
         ]);
     }
 
@@ -71,13 +68,13 @@ class InstallAdmin20241011 extends Migrator
     {
         $modal = SystemConfig::mk()->whereRaw('1=1')->findOrEmpty();
         $modal->isEmpty() && $modal->insertAll([
-            ['type' => 'base', 'name' => 'app_name', 'value' => 'ThinkAdmin'],
+            ['type' => 'base', 'name' => 'app_name', 'value' => 'WebBase CMS'],
             ['type' => 'base', 'name' => 'app_version', 'value' => 'v6'],
             ['type' => 'base', 'name' => 'editor', 'value' => 'ckeditor5'],
             ['type' => 'base', 'name' => 'login_name', 'value' => '系统管理'],
-            ['type' => 'base', 'name' => 'site_copy', 'value' => '©版权所有 2014-' . date('Y') . ' ThinkAdmin'],
-            ['type' => 'base', 'name' => 'site_icon', 'value' => 'https://thinkadmin.top/static/img/logo.png'],
-            ['type' => 'base', 'name' => 'site_name', 'value' => 'ThinkAdmin'],
+            ['type' => 'base', 'name' => 'site_copy', 'value' => '©版权所有 2014-' . date('Y') . ' WebBase CMS'],
+            ['type' => 'base', 'name' => 'site_icon', 'value' => ''],
+            ['type' => 'base', 'name' => 'site_name', 'value' => 'WebBase CMS'],
             ['type' => 'base', 'name' => 'site_theme', 'value' => 'default'],
             ['type' => 'storage', 'name' => 'allow_exts', 'value' => 'doc,gif,ico,jpg,mp3,mp4,p12,pem,png,zip,rar,xls,xlsx'],
             ['type' => 'storage', 'name' => 'type', 'value' => 'local'],

@@ -3,29 +3,26 @@
 declare(strict_types=1);
 /**
  * +----------------------------------------------------------------------
- * | ThinkAdmin Plugin for ThinkAdmin
+ * | WebBase CMS Component
  * +----------------------------------------------------------------------
- * | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
+ * | Copyright (c) 2026 WebBase contributors
  * +----------------------------------------------------------------------
- * | 官方网站: https://thinkadmin.top
+ * | 官方网站: https://github.com/theday-seeyou/web-base-temple
  * +----------------------------------------------------------------------
  * | 开源协议 ( https://mit-license.org )
- * | 免责声明 ( https://thinkadmin.top/disclaimer )
- * | 会员特权 ( https://thinkadmin.top/vip-introduce )
  * +----------------------------------------------------------------------
- * | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
- * | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+ * | github 代码仓库：https://github.com/theday-seeyou/web-base-temple
  * +----------------------------------------------------------------------
  */
 
 namespace app\admin\controller;
 
-use think\admin\Controller;
-use think\admin\helper\QueryHelper;
-use think\admin\model\SystemQueue;
-use think\admin\service\AdminService;
-use think\admin\service\ProcessService;
-use think\admin\service\QueueService;
+use WebBase\Core\Controller;
+use WebBase\Core\helper\QueryHelper;
+use WebBase\Core\model\SystemQueue;
+use WebBase\Core\service\AdminService;
+use WebBase\Core\service\ProcessService;
+use WebBase\Core\service\QueueService;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\DbException;
 use think\db\exception\ModelNotFoundException;
@@ -51,7 +48,7 @@ class Queue extends Controller
             $this->title = '系统任务管理';
             $this->iswin = ProcessService::iswin();
             if ($this->super = AdminService::isSuper()) {
-                $this->command = ProcessService::think('xadmin:queue start');
+                $this->command = ProcessService::think('webbase:queue start');
                 if (!$this->iswin && !empty($_SERVER['USER'])) {
                     $this->command = "sudo -u {$_SERVER['USER']} {$this->command}";
                 }
@@ -87,7 +84,7 @@ class Queue extends Controller
      */
     public function clean()
     {
-        $this->_queue('定时清理系统运行数据', 'xadmin:queue clean', 0, [], 0, 3600);
+        $this->_queue('定时清理系统运行数据', 'webbase:queue clean', 0, [], 0, 3600);
     }
 
     /**

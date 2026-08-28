@@ -20,7 +20,7 @@ use app\admin\helper\DeleteHelper;
  * @class BaseModel
  * @mixin \think\db\Query
  */
-abstract class BaseModel extends \think\admin\Model
+abstract class BaseModel extends \WebBase\Core\Model
 {
     use \think\model\concern\SoftDelete;
 

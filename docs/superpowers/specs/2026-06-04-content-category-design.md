@@ -2,7 +2,7 @@
 
 ## 概述
 
-在 ThinkAdmin 后台新增"内容管理"一级菜单，首个子模块为"栏目管理"（三级树状分类）。
+在 WebBase CMS 后台新增"内容管理"一级菜单，首个子模块为"栏目管理"（三级树状分类）。
 
 ## 1. BaseModel（新模型基类）
 
@@ -10,7 +10,7 @@
 `app/admin/model/BaseModel.php`
 
 ### 设计说明
-- 继承 `think\admin\Model`，引入 `SoftDelete` trait
+- 继承 `WebBase\Core\Model`，引入 `SoftDelete` trait
 - 所有 admin 模块下的新模型继承此类
 - 查询自动过滤 `WHERE deleted_at IS NULL`
 - 删除自动写入 `deleted_at = 当前时间`
@@ -21,9 +21,9 @@
 <?php
 namespace app\admin\model;
 
-use think\admin\helper\DeleteHelper;
+use WebBase\Core\helper\DeleteHelper;
 
-class BaseModel extends \think\admin\Model
+class BaseModel extends \WebBase\Core\Model
 {
     use \think\model\concern\SoftDelete;
 
@@ -57,7 +57,7 @@ class BaseModel extends \think\admin\Model
 `app/admin/helper/DeleteHelper.php`
 
 ### 设计说明
-- 继承 `think\admin\Helper`
+- 继承 `WebBase\Core\Helper`
 - 逻辑与 vendor 的 `DeleteHelper` 一致，但软删除检测改为 `deleted_at`
 - 表有 `deleted_at` 字段 → 写入时间戳（软删除）
 - 表无 `deleted_at` 字段 → 硬删除
@@ -67,7 +67,7 @@ class BaseModel extends \think\admin\Model
 <?php
 namespace app\admin\helper;
 
-use think\admin\Helper;
+use WebBase\Core\Helper;
 use think\db\BaseQuery;
 use think\db\exception\DbException;
 
@@ -108,7 +108,7 @@ class DeleteHelper extends Helper
 
         if ($result !== false) {
             $model = $query->getModel();
-            if ($model instanceof \think\admin\Model) {
+            if ($model instanceof \WebBase\Core\Model) {
                 $model->onAdminDelete(strval($value));
             }
         }
@@ -190,8 +190,8 @@ class Category extends BaseModel
 <?php
 namespace app\admin\controller;
 
-use think\admin\Controller;
-use think\admin\extend\DataExtend;
+use WebBase\Core\Controller;
+use WebBase\Core\extend\DataExtend;
 use app\admin\model\Category;
 
 class Category extends Controller

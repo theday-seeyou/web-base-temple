@@ -3,26 +3,23 @@
 declare(strict_types=1);
 /**
  * +----------------------------------------------------------------------
- * | ThinkAdmin Plugin for ThinkAdmin
+ * | WebBase CMS Component
  * +----------------------------------------------------------------------
- * | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
+ * | Copyright (c) 2026 WebBase contributors
  * +----------------------------------------------------------------------
- * | 官方网站: https://thinkadmin.top
+ * | 官方网站: https://github.com/theday-seeyou/web-base-temple
  * +----------------------------------------------------------------------
  * | 开源协议 ( https://mit-license.org )
- * | 免责声明 ( https://thinkadmin.top/disclaimer )
- * | 会员特权 ( https://thinkadmin.top/vip-introduce )
  * +----------------------------------------------------------------------
- * | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
- * | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+ * | github 代码仓库：https://github.com/theday-seeyou/web-base-temple
  * +----------------------------------------------------------------------
  */
 
 namespace app\admin\controller\api;
 
-use think\admin\Controller;
-use think\admin\Exception;
-use think\admin\service\AdminService;
+use WebBase\Core\Controller;
+use WebBase\Core\Exception;
+use WebBase\Core\service\AdminService;
 use think\Response;
 
 /**
@@ -47,23 +44,23 @@ class Plugs extends Controller
                 }
             }
         }
-        // 读取 ThinkAdmin 字体图标
-        if (empty($this->thinkIcons = $this->app->cache->get('ThinkAdminSelfIcons', []))) {
+        // 读取 WebBase CMS 字体图标
+        if (empty($this->thinkIcons = $this->app->cache->get('WebBase CMSSelfIcons', []))) {
             $style = file_get_contents(syspath('public/static/theme/css/iconfont.css'));
             if (preg_match_all('#\.(iconfont-[\w-]+):#', $style, $matches)) {
                 if (count($this->thinkIcons = $matches[1]) > 0) {
-                    $this->app->cache->set('ThinkAdminSelfIcons', $this->thinkIcons, 60);
+                    $this->app->cache->set('WebBase CMSSelfIcons', $this->thinkIcons, 60);
                 }
             }
         }
         // 读取 extra 自定义字体图标
-        if (empty($this->extraIcons = $this->app->cache->get('ThinkAdminExtraIcons', []))) {
+        if (empty($this->extraIcons = $this->app->cache->get('WebBase CMSExtraIcons', []))) {
             $extraIconPath = syspath('public/static/extra/icon/iconfont.css');
             if (file_exists($extraIconPath)) {
                 $style = file_get_contents($extraIconPath);
                 if (preg_match_all('#\.(iconfont-[\w-]+):#', $style, $matches)) {
                     if (count($this->extraIcons = $matches[1]) > 0) {
-                        $this->app->cache->set('ThinkAdminExtraIcons', $this->extraIcons, 60);
+                        $this->app->cache->set('WebBase CMSExtraIcons', $this->extraIcons, 60);
                     }
                 }
             }
@@ -95,7 +92,7 @@ class Plugs extends Controller
     {
         if (AdminService::isSuper()) {
             sysoplog('系统运维管理', '创建数据库优化任务');
-            $this->_queue('优化数据库所有数据表', 'xadmin:database optimize');
+            $this->_queue('优化数据库所有数据表', 'webbase:database optimize');
         } else {
             $this->error('请使用超管账号操作！');
         }

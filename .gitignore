@@ -10,8 +10,9 @@
 /runtime
 /safefile
 /nbproject
-/composer.lock
 !composer.json
+
+/.codex-tmp
 
 /404.html
 /.user.ini
@@ -26,5 +27,4 @@
 /public/static/theme/css/_*.css*
 /public/static/theme/css/node_modules
 /public/static/theme/css/package-lock.json
-
 

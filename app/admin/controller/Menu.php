@@ -3,29 +3,26 @@
 declare(strict_types=1);
 /**
  * +----------------------------------------------------------------------
- * | ThinkAdmin Plugin for ThinkAdmin
+ * | WebBase CMS Component
  * +----------------------------------------------------------------------
- * | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
+ * | Copyright (c) 2026 WebBase contributors
  * +----------------------------------------------------------------------
- * | 官方网站: https://thinkadmin.top
+ * | 官方网站: https://github.com/theday-seeyou/web-base-temple
  * +----------------------------------------------------------------------
  * | 开源协议 ( https://mit-license.org )
- * | 免责声明 ( https://thinkadmin.top/disclaimer )
- * | 会员特权 ( https://thinkadmin.top/vip-introduce )
  * +----------------------------------------------------------------------
- * | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
- * | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+ * | github 代码仓库：https://github.com/theday-seeyou/web-base-temple
  * +----------------------------------------------------------------------
  */
 
 namespace app\admin\controller;
 
-use think\admin\Controller;
-use think\admin\extend\DataExtend;
-use think\admin\model\SystemMenu;
-use think\admin\service\AdminService;
-use think\admin\service\MenuService;
-use think\admin\service\NodeService;
+use WebBase\Core\Controller;
+use WebBase\Core\extend\DataExtend;
+use WebBase\Core\model\SystemMenu;
+use WebBase\Core\service\AdminService;
+use WebBase\Core\service\MenuService;
+use WebBase\Core\service\NodeService;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\DbException;
 use think\db\exception\ModelNotFoundException;

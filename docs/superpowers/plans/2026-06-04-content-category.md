@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 在 ThinkAdmin 后台新增"内容管理"菜单，实现三级树状栏目管理（CRUD + 软删除）。
+**Goal:** 在 WebBase CMS 后台新增"内容管理"菜单，实现三级树状栏目管理（CRUD + 软删除）。
 
-**Architecture:** 创建 BaseModel 基类（继承 think\admin\Model + SoftDelete trait）作为所有新模型的父类；自定义 DeleteHelper 处理 `deleted_at` 软删除；Category 控制器使用框架标准快捷方法。树形展示使用框架自带的 DataExtend 工具类。
+**Architecture:** 创建 BaseModel 基类（继承 WebBase\Core\Model + SoftDelete trait）作为所有新模型的父类；自定义 DeleteHelper 处理 `deleted_at` 软删除；Category 控制器使用框架标准快捷方法。树形展示使用框架自带的 DataExtend 工具类。
 
-**Tech Stack:** PHP 7.1+ / ThinkPHP 6 / ThinkAdmin / LayUI 2.x / MySQL
+**Tech Stack:** PHP 7.1+ / ThinkPHP 6 / WebBase CMS / LayUI 2.x / MySQL
 
 ---
 
@@ -27,7 +27,7 @@
 ### Task 1: 创建数据库表
 
 **Files:**
-- Reference: `vendor/zoujingli/think-library/src/model/SystemMenu.php` (现有表结构参考)
+- Reference: `packages/web-base-core/src/model/SystemMenu.php` (现有表结构参考)
 
 - [ ] **Step 1: 执行 SQL 创建 category 表**
 
@@ -70,8 +70,8 @@ git commit -m "feat: create category table for content management"
 
 **Files:**
 - Create: `app/admin/helper/DeleteHelper.php`
-- Reference: `vendor/zoujingli/think-library/src/helper/DeleteHelper.php` (vendor 原版，不可修改)
-- Reference: `vendor/zoujingli/think-library/src/Helper.php` (基类构造函数)
+- Reference: `packages/web-base-core/src/helper/DeleteHelper.php` (vendor 原版，不可修改)
+- Reference: `packages/web-base-core/src/Helper.php` (基类构造函数)
 
 逻辑与 vendor 的 `DeleteHelper` 完全一致，唯一区别是软删除检测：将 `deleted`/`is_deleted` 替换为 `deleted_at`。当表存在 `deleted_at` 字段时写入时间戳，不存在则硬删除。
 
@@ -84,7 +84,7 @@ declare(strict_types=1);
 
 namespace app\admin\helper;
 
-use think\admin\Helper;
+use WebBase\Core\Helper;
 use think\db\BaseQuery;
 use think\db\exception\DbException;
 use think\Model;
@@ -140,7 +140,7 @@ class DeleteHelper extends Helper
         if ($result = (empty($data) ? $query->delete() : $query->update($data)) !== false) {
             // 模型自定义事件回调
             $model = $query->getModel();
-            if ($model instanceof \think\admin\Model) {
+            if ($model instanceof \WebBase\Core\Model) {
                 $model->onAdminDelete(strval($value));
             }
         }
@@ -173,10 +173,10 @@ git commit -m "feat: add custom DeleteHelper with deleted_at soft delete support
 
 **Files:**
 - Create: `app/admin/model/BaseModel.php`
-- Reference: `vendor/zoujingli/think-library/src/Model.php` (框架基类)
+- Reference: `packages/web-base-core/src/Model.php` (框架基类)
 - Reference: `vendor/topthink/think-orm/src/model/concern/SoftDelete.php` (SoftDelete trait)
 
-BaseModel 继承 `think\admin\Model`，引入 `SoftDelete` trait 实现查询自动过滤，并重写 `mDelete()` 静态方法路由到自定义 DeleteHelper。
+BaseModel 继承 `WebBase\Core\Model`，引入 `SoftDelete` trait 实现查询自动过滤，并重写 `mDelete()` 静态方法路由到自定义 DeleteHelper。
 
 **关键点：**
 - `$deleteTime = 'deleted_at'` — 软删除字段名
@@ -201,7 +201,7 @@ use app\admin\helper\DeleteHelper;
  *
  * @class BaseModel
  */
-class BaseModel extends \think\admin\Model
+class BaseModel extends \WebBase\Core\Model
 {
     use \think\model\concern\SoftDelete;
 
@@ -232,7 +232,7 @@ class BaseModel extends \think\admin\Model
 }
 ```
 
-**注意：** `DeleteHelper::instance()` 来自 `Helper` 基类的 `instance()` 方法（`vendor/zoujingli/think-library/src/Helper.php:79-82`），调用 `Container::invokeClass()` 创建实例，构造函数 `App $app, Controller $class` 由容器从当前请求上下文自动解析注入。调用时不传参数，然后链式调用 `->init()` 传入模型类名和条件。
+**注意：** `DeleteHelper::instance()` 来自 `Helper` 基类的 `instance()` 方法（`packages/web-base-core/src/Helper.php:79-82`），调用 `Container::invokeClass()` 创建实例，构造函数 `App $app, Controller $class` 由容器从当前请求上下文自动解析注入。调用时不传参数，然后链式调用 `->init()` 传入模型类名和条件。
 
 - [ ] **Step 2: Commit**
 
@@ -305,7 +305,7 @@ git commit -m "feat: add Category model"
 **Files:**
 - Create: `app/admin/controller/Category.php`
 - Reference: `app/admin/controller/Menu.php` (树形列表 + 表单处理参考)
-- Reference: `vendor/zoujingli/think-library/src/extend/DataExtend.php` (arr2tree/arr2table)
+- Reference: `packages/web-base-core/src/extend/DataExtend.php` (arr2tree/arr2table)
 
 - [ ] **Step 1: 创建 Category 控制器**
 
@@ -316,8 +316,8 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
-use think\admin\Controller;
-use think\admin\extend\DataExtend;
+use WebBase\Core\Controller;
+use WebBase\Core\extend\DataExtend;
 use app\admin\model\Category;
 
 /**
