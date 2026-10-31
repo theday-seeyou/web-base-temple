@@ -3,14 +3,14 @@
 {block name="button"}
 {if isset($type) and $type eq 'index'}
 <!--{if auth("add")}-->
-<button data-modal='{:url("add")}' data-table-id="CategoryTable" class='layui-btn layui-btn-sm layui-btn-primary'>添加栏目</button>
+<button data-modal='{:url("add")}' data-table-id="CategoryTable" class='layui-btn layui-btn-sm layui-btn-primary'>添加分类</button>
 <!--{/if}-->
 
 <!--{if auth("state")}-->
-<button data-action='{:url("state")}' data-table-id="CategoryTable" data-rule="id#{sps};status#0" class='layui-btn layui-btn-sm layui-btn-primary'>禁用栏目</button>
+<button data-action='{:url("state")}' data-table-id="CategoryTable" data-rule="id#{sps};status#0" class='layui-btn layui-btn-sm layui-btn-primary'>禁用分类</button>
 <!--{/if}-->
 <!--{if auth("remove")}-->
-<button data-action='{:url("remove")}' data-table-id="CategoryTable" data-rule="id#{sps}" data-confirm="确定要将选中栏目移入回收站吗？" class='layui-btn layui-btn-sm layui-btn-danger'>批量删除</button>
+<button data-action='{:url("remove")}' data-table-id="CategoryTable" data-rule="id#{sps}" data-confirm="确定要将选中分类移入回收站吗？" class='layui-btn layui-btn-sm layui-btn-danger'>批量删除</button>
 <!--{/if}-->
 {else}
 <!--{if auth("restore")}-->

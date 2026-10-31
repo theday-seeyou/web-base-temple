@@ -1,9 +1,13 @@
 {
   "name": "theme",
   "version": "1.0.0",
-  "description": "WebBase CMS v6 theme less-style build",
+  "description": "WebBase Admin theme less-style build",
   "scripts": {
-    "install": "npm install less less-plugin-clean-css -g",
     "build": "lessc --clean-css --source-map login.less login.css && lessc --clean-css --source-map mobile.less mobile.css && lessc --clean-css --source-map console.less console.css && lessc --clean-css --source-map iconfont.less iconfont.css"
-  }
+  },
+  "devDependencies": {
+    "less": "4.2.2",
+    "less-plugin-clean-css": "1.6.0"
+  },
+  "private": true
 }

@@ -21,20 +21,18 @@ $(function () {
         });
     });
 
-    /*! 后台加密登录处理 */
+    /*! 登录密码通过 HTTPS 传输，服务端验证密码散列 */
     $body.find('form[data-login-form]').each(function (idx, form) {
-        require(['md5'], function (md5) {
-            $(form).vali(function (data) {
-                data['password'] = md5.hash(md5.hash(data['password']) + data['uniqid']);
-                $.form.load(location.href, data, "post", function (ret) {
-                    if (parseInt(ret.code) !== 1) {
-                        $(form).find('[data-captcha]').trigger('click');
-                        $(form).find('.verify.layui-hide').removeClass('layui-hide');
-                    }
-                }, null, null, 'false');
-            });
+        $(form).vali(function (data) {
+            $.form.load(location.href, data, "post", function (ret) {
+                if (parseInt(ret.code) !== 1) {
+                    $(form).find('[data-captcha]').trigger('click');
+                    $(form).find('.verify.layui-hide').removeClass('layui-hide');
+                }
+            }, null, null, 'false');
         });
     });
+
 
     /*! 登录图形验证码刷新 */
     $body.on('click', '[data-captcha]', function () {
@@ -49,8 +47,9 @@ $(function () {
                 $that.attr('timer') && clearTimeout($that.attr('timer'));
                 $that.attr('timer', setTimeout(() => $that.trigger('click'), 350000));
                 $that.html('<img alt="img" src="' + ret.data.image + '"><input type="hidden">').find('input').attr('name', uniqid).val(ret.data.uniqid || '');
-                $form.find('[name="' + verify + '"]').attr('value', ret.data.code || '').val(ret.data.code || '');
-                return (ret.data.code || $form.find('.verify.layui-hide').removeClass('layui-hide')), false;
+                $form.find('[name="' + verify + '"]').val('');
+                $form.find('.verify.layui-hide').removeClass('layui-hide');
+                return false;
             }
         }, false);
     });

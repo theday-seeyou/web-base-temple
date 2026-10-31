@@ -21,6 +21,7 @@ use WebBase\Core\Controller;
 use WebBase\Core\Exception;
 use WebBase\Core\model\SystemUser;
 use WebBase\Core\service\AdminService;
+use WebBase\Core\service\PasswordService;
 use WebBase\Core\service\MenuService;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\DbException;
@@ -115,21 +116,27 @@ class Index extends Controller
                 'repassword.require' => '重复密码不能为空！',
                 'oldpassword.require' => '旧的密码不能为空！',
                 'password.confirm:repassword' => '两次输入的密码不一致！',
-            ]);
+            ], PasswordService::input($this->request));
             $user = SystemUser::mk()->find($id);
             if (empty($user)) {
                 $this->error('用户不存在！');
             }
-            if (md5($data['oldpassword']) !== $user['password']) {
+            if (!PasswordService::verify($data['oldpassword'], (string)$user['password'])) {
                 $this->error('旧密码验证失败，请重新输入！');
             }
-            if ($user->save(['password' => md5($data['password'])])) {
+            try {
+                $hash = PasswordService::hash($data['password']);
+            } catch (\InvalidArgumentException $exception) {
+                $this->error($exception->getMessage());
+            }
+            if ($user->save(['password' => $hash])) {
                 sysoplog('系统用户管理', "修改用户[{$user['id']}]密码成功");
                 // 修改密码同步事件处理
                 $this->app->event->trigger('PluginAdminChangePassword', [
-                    'uuid' => intval($user['id']), 'pass' => $data['password'],
+                    'uuid' => intval($user['id']),
                 ]);
-                $this->success('密码修改成功，下次请使用新密码登录！', '');
+                $this->app->session->destroy();
+                $this->success('密码修改成功，请重新登录！', sysuri('admin/login/index'));
             } else {
                 $this->error('密码修改失败，请稍候再试！');
             }
@@ -142,7 +149,7 @@ class Index extends Controller
     protected function _info_form_filter(array &$data)
     {
         if ($this->request->isPost()) {
-            unset($data['username'], $data['authorize']);
+            $data = array_intersect_key($data, array_flip(['id', 'nickname', 'headimg', 'contact_phone', 'contact_mail', 'contact_qq', 'describe']));
         }
     }
 

@@ -65,6 +65,9 @@ class Queue extends Controller
      */
     public function redo()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         try {
             $data = $this->_vali(['code.require' => '任务编号不能为空！']);
             $queue = QueueService::instance()->initialize($data['code'])->reset();
@@ -84,6 +87,9 @@ class Queue extends Controller
      */
     public function clean()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         $this->_queue('定时清理系统运行数据', 'webbase:queue clean', 0, [], 0, 3600);
     }
 

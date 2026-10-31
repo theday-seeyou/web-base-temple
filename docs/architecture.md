@@ -1,49 +1,37 @@
-# WebBase 架构
+# WebBase 公开架构边界
 
-## 两个发布单元
+## 公开发布单元
 
-### WebBase CMS
+### WebBase Starter
 
 - Composer 包：`theday-seeyou/web-base-temple`
 - 代码位置：仓库根目录
-- 职责：企业站后台、内容模型、中英文站点、模板和最终网站交付
+- 职责：提供可通过 `composer create-project` 创建的最小后台应用
+- 包含：登录、用户、权限、菜单、配置、文件、日志、队列和静态示例模块
 
 ### WebBase Core
 
 - Composer 包：`theday-seeyou/web-base-core`
 - 代码仓库：<https://github.com/theday-seeyou/web-base-core>
-- 本地开发建议位置：与 CMS 平级的 `web-base-core/` 目录
-- 职责：后台基础能力、RBAC、CRUD、存储、队列和通用服务
+- 本地开发建议位置：与 Starter 平级的 `web-base-core/` 目录
+- 职责：后台基础能力、RBAC、CRUD、软删除、存储、队列和通用服务
 
-CMS 只依赖 Packagist 发布的核心版本。两个仓库独立提交、独立打标签，避免 CMS 的安装过程执行本地包复制或覆盖逻辑。
+Starter 只依赖 Packagist 发布的核心版本。两个仓库独立提交、独立打标签，
+安装和更新过程不得删除或覆盖项目源码。
 
-## 模板系统方向
+## 私有扩展边界
 
-模板包不使用 Composer plugin。模板安装由 CMS 命令读取清单并执行：
+公开仓库只声明支持普通 Composer 扩展，不记录任何产品级扩展的协议、
+数据结构、功能清单或实现细节。
 
-1. 校验模板兼容版本和文件哈希。
-2. 列出将新增、冲突和可更新的文件。
-3. 默认只新增，不覆盖。
-4. 冲突时停止并输出报告。
-5. 只有显式 `--force` 才覆盖，并在覆盖前生成备份。
-6. 内容演示数据与文件资源分开导入。
+私有扩展必须遵守与公开包相同的安全规则：Composer 安装阶段不得写入
+`app/`、`config/`、`database/` 或 `public/`。需要发布资源或执行数据库
+变更时，必须提供由开发者显式运行的命令。
 
-建议模板结构：
+## 扩展注册
 
-```text
-template-package/
-├─ template.json
-├─ views/
-├─ assets/
-├─ locales/
-│  ├─ zh-cn/
-│  └─ en-us/
-└─ seed/
-```
+扩展优先使用 ThinkPHP 的 Composer 服务发现能力注册服务和命令。
+公开 Core 只提供通用扩展接口，不包含产品级专用实现。
 
-## 多语言方向
-
-- 后台界面语言使用 ThinkPHP 语言包。
-- 业务内容使用同一内容实体加语言版本表。
-- URL、SEO 标题、描述、正文和导航均可独立翻译。
-- 模板只定义展示结构，不直接保存业务内容。
+任何内部设计文档和产品协议都必须保存在私有仓库中，
+不得提交到本公开仓库。

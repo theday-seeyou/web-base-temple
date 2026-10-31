@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6082225a5fcd7e2969285d0261cce778",
+    "content-hash": "3bc3542577495bb6c0a00ae25d24f2c2",
     "packages": [
         {
             "name": "psr/container",
@@ -215,20 +215,20 @@
         },
         {
             "name": "symfony/process",
-            "version": "v7.4.17",
+            "version": "v6.4.49",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "058d17fc284cce14efb2385783b55014a461b176"
+                "reference": "f83dad5ec04a56948a97f4a86141fe81998233ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/058d17fc284cce14efb2385783b55014a461b176",
-                "reference": "058d17fc284cce14efb2385783b55014a461b176",
+                "url": "https://api.github.com/repos/symfony/process/zipball/f83dad5ec04a56948a97f4a86141fe81998233ba",
+                "reference": "f83dad5ec04a56948a97f4a86141fe81998233ba",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2"
+                "php": ">=8.1"
             },
             "type": "library",
             "autoload": {
@@ -256,7 +256,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v7.4.17"
+                "source": "https://github.com/symfony/process/tree/v6.4.49"
             },
             "funding": [
                 {
@@ -276,24 +276,25 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-21T17:40:08+00:00"
+            "time": "2026-10-25T12:09:24+00:00"
         },
         {
             "name": "theday-seeyou/web-base-core",
-            "version": "v0.3.0",
+            "version": "v0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/theday-seeyou/web-base-core.git",
-                "reference": "1570032966de08c63b8ded46fbdd3568beeba37e"
+                "reference": "57ed08420fbfd68cc5f7fcb75a2098a6d2307342"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/theday-seeyou/web-base-core/zipball/1570032966de08c63b8ded46fbdd3568beeba37e",
-                "reference": "1570032966de08c63b8ded46fbdd3568beeba37e",
+                "url": "https://api.github.com/repos/theday-seeyou/web-base-core/zipball/57ed08420fbfd68cc5f7fcb75a2098a6d2307342",
+                "reference": "57ed08420fbfd68cc5f7fcb75a2098a6d2307342",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
+                "ext-fileinfo": "*",
                 "ext-gd": "*",
                 "ext-iconv": "*",
                 "ext-json": "*",
@@ -334,10 +335,11 @@
                     "name": "WebBase contributors"
                 }
             ],
-            "description": "Reusable CMS administration core for WebBase",
+            "description": "Reusable ThinkPHP administration core for WebBase",
             "homepage": "https://github.com/theday-seeyou/web-base-core",
             "keywords": [
-                "cms",
+                "admin",
+                "rbac",
                 "thinkphp",
                 "webbase"
             ],
@@ -345,7 +347,7 @@
                 "issues": "https://github.com/theday-seeyou/web-base-core/issues",
                 "source": "https://github.com/theday-seeyou/web-base-core"
             },
-            "time": "2026-08-28T12:03:28+00:00"
+            "time": "2026-10-31T17:36:31+00:00"
         },
         {
             "name": "topthink/framework",
@@ -760,5 +762,8 @@
         "ext-json": "*"
     },
     "platform-dev": {},
+    "platform-overrides": {
+        "php": "8.1.0"
+    },
     "plugin-api-version": "2.6.0"
 }

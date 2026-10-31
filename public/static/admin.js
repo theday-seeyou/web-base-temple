@@ -12,6 +12,13 @@ window.form = layui.form, window.layer = layui.layer;
 window.laytpl = layui.laytpl, window.laydate = layui.laydate;
 window.jQuery = window.$ = window.jQuery || window.$ || layui.$;
 window.jQuery.ajaxSetup({xhrFields: {withCredentials: true}});
+// Only send the session token to this origin, including multipart uploads.
+window.jQuery.ajaxPrefilter(function (options, original, xhr) {
+    if (new URL(options.url, location.href).origin === location.origin && !/^(GET|HEAD|OPTIONS)$/i.test(options.type)) {
+        const token = document.querySelector('meta[name="csrf-token"]');
+        if (token) xhr.setRequestHeader('X-CSRF-Token', token.content);
+    }
+});
 window.jQuery.fn.size || (window.jQuery.fn.size = () => this.length);
 
 /*! 配置 require 参数  */
@@ -878,7 +885,7 @@ $(function () {
     /*! 注册 data-load 事件行为 */
     $.base.onEvent('click', '[data-load]', function () {
         $.base.applyRuleValue(this, {}, function (data, elem, dset) {
-            $.form.load(dset.load, data, 'get', $.base.onConfirm.getLoadCallable(dset.tableId), true, dset.tips, dset.time);
+            $.form.load(dset.load, data, dset.method || 'post', $.base.onConfirm.getLoadCallable(dset.tableId), true, dset.tips, dset.time);
         });
     });
 

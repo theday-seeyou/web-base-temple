@@ -25,6 +25,10 @@ use WebBase\Core\Plugin;
  */
 class Service extends Plugin
 {
+    public function boot(): void
+    {
+        $this->commands([\app\admin\command\InitAdmin::class]);
+    }
     /**
      * 定义插件名称.
      * @var string
@@ -44,9 +48,9 @@ class Service extends Plugin
     {
         return [
             [
-                'name' => '内容管理',
+                'name' => '示例模块',
                 'subs' => [
-                    ['name' => '栏目管理', 'icon' => 'layui-icon layui-icon-app', 'node' => 'admin/category/index'],
+                    ['name' => '树形分类示例', 'icon' => 'layui-icon layui-icon-app', 'node' => 'admin/category/index'],
                 ],
             ],
             [

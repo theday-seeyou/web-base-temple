@@ -57,6 +57,9 @@ class Oplog extends Controller
      */
     public function clear()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         try {
             SystemOplog::mQuery()->empty();
             sysoplog('系统运维管理', '成功清理所有日志');

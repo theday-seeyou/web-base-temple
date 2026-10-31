@@ -12,12 +12,14 @@ final class UnifySoftDeleteFields extends AbstractMigration
      */
     public function up(): void
     {
+        $system_base = $this->getAdapter()->quoteTableName($this->getAdapter()->getAdapterTableName('system_base'));
+        $system_user = $this->getAdapter()->quoteTableName($this->getAdapter()->getAdapterTableName('system_user'));
         $now = date('Y-m-d H:i:s');
 
         $base = $this->table('system_base');
         if ($base->hasColumn('deleted_at')) {
             if ($base->hasColumn('deleted')) {
-                $this->execute("UPDATE `system_base` SET `deleted_at` = CASE WHEN `deleted` = 1 THEN COALESCE(NULLIF(`deleted_at`, ''), '{$now}') ELSE NULL END");
+                $this->execute("UPDATE {$system_base} SET `deleted_at` = CASE WHEN `deleted` = 1 THEN COALESCE(NULLIF(`deleted_at`, ''), '{$now}') ELSE NULL END");
             }
             $base->changeColumn('deleted_at', 'datetime', [
                 'null' => true,
@@ -48,7 +50,7 @@ final class UnifySoftDeleteFields extends AbstractMigration
             $user = $this->table('system_user');
         }
         if ($user->hasColumn('is_deleted')) {
-            $this->execute("UPDATE `system_user` SET `deleted_at` = '{$now}' WHERE `is_deleted` = 1");
+            $this->execute("UPDATE {$system_user} SET `deleted_at` = '{$now}' WHERE `is_deleted` = 1");
             $user->removeColumn('is_deleted')->update();
         }
 
@@ -67,6 +69,8 @@ final class UnifySoftDeleteFields extends AbstractMigration
      */
     public function down(): void
     {
+        $system_base = $this->getAdapter()->quoteTableName($this->getAdapter()->getAdapterTableName('system_base'));
+        $system_user = $this->getAdapter()->quoteTableName($this->getAdapter()->getAdapterTableName('system_user'));
         throw new IrreversibleMigrationException(
             'Legacy soft-delete fields are permanently replaced by deleted_at.'
         );

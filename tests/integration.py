@@ -1,0 +1,172 @@
+"""Run against a disposable migrated Starter and its local HTTP server.
+
+Set WEBBASE_TEST_ISOLATED=1, WEBBASE_PHP and WEBBASE_TEST_URL.
+The CLI helper reads our own test captcha cache; no public captcha bypass exists.
+"""
+import hashlib,http.cookiejar,json,os,re,subprocess,urllib.request,urllib.parse,urllib.error,uuid
+from pathlib import Path
+
+ROOT=Path(__file__).resolve().parents[1]
+PHP=os.environ.get('WEBBASE_PHP','php')
+BASE=os.environ.get('WEBBASE_TEST_URL','http://127.0.0.1:18381')
+assert os.environ.get('WEBBASE_TEST_ISOLATED')=='1'
+PASSWORD='Local integration password 2026!'
+
+def verify_static_assets():
+    """Check that a clean Composer install serves the packaged CSS and JS."""
+    assets={
+        '/static/theme/css/login.css':'text/css',
+        '/static/theme/css/console.css':'text/css',
+        '/static/plugs/layui/css/layui.css':'text/css',
+        '/static/admin.js':'javascript',
+        '/static/login.js':'javascript',
+    }
+    for path,content_type in assets.items():
+        with urllib.request.urlopen(BASE+path) as response:
+            body=response.read()
+            assert response.status==200 and content_type in response.headers.get('Content-Type',''),path
+            assert len(body)>1000 and b'<!DOCTYPE html' not in body[:100],path
+    print('PASS: packaged login/admin CSS and JavaScript return correct content types')
+def state(action,**data):
+    result=subprocess.run([PHP,'-d','error_reporting=24575',str(ROOT/'tests/support/state.php')],input=json.dumps(dict(action=action,**data)),text=True,encoding='utf-8',capture_output=True,cwd=ROOT,check=True)
+    return json.loads(result.stdout)
+def sql(query,params=None,write=False):
+    return state('execute' if write else 'query',sql=query,params=params or [])
+class Client:
+    def __init__(self):
+        self.jar=http.cookiejar.CookieJar()
+        self.opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.jar))
+        self.token=''
+    def request(self,path,data=None,csrf=True,method=None,headers=None,body=None):
+        hdr={'X-Requested-With':'XMLHttpRequest'}
+        if headers: hdr.update(headers)
+        if data is not None:
+            body=urllib.parse.urlencode(data).encode()
+        if csrf and self.token and (data is not None or body is not None): hdr['X-CSRF-Token']=self.token
+        req=urllib.request.Request(BASE+path,data=body,headers=hdr,method=method)
+        try: response=self.opener.open(req)
+        except urllib.error.HTTPError as error: response=error
+        raw=response.read()
+        text=raw.decode('utf-8',errors='replace')
+        try: content=json.loads(text)
+        except ValueError: content=text
+        return response.status,content,response.headers
+    def page(self):
+        status,html,_=self.request('/admin/login/index')
+        match=re.search('name="csrf-token" content="([a-f0-9]{64})"',html)
+        assert status==200 and match,repr(html[:300])
+        self.token=match[1]
+    def sid(self):
+        return next(c.value for c in self.jar if c.name=='ssid')
+    def login(self,username='admin',password=PASSWORD):
+        self.page()
+        before=self.sid()
+        status,cap,_=self.request('/admin/login/captcha',{'type':'LoginCaptcha','token':'test'})
+        assert status==200 and cap['code']==1 and 'code' not in cap['data'],cap
+        answer=state('captcha',session=self.sid())
+        status,result,_=self.request('/admin/login/index',{'username':username,'password':password,'verify':answer,'uniqid':cap['data']['uniqid']})
+        assert status==200 and result['code']==1,result
+        assert self.sid()!=before,'Session id did not rotate'
+        status,html,_=self.request('/admin/index/index')
+        assert status==200 and isinstance(html,str) and 'csrf-token' in html,repr(html)[:300]
+        self.token=re.search('name="csrf-token" content="([a-f0-9]{64})"',html)[1]
+        return result
+    def post(self,path,data,expected=1):
+        status,result,_=self.request(path,data)
+        assert status==200 and isinstance(result,dict) and result['code']==expected,(path,status,str(result)[:500])
+        return result
+
+verify_static_assets()
+state('clear-limits')
+if sql('SELECT COUNT(*) AS total FROM system_user')[0]['total']==0:
+    result=subprocess.run([PHP,'-d','error_reporting=24575','think','admin:init','--no-interaction'],cwd=ROOT,env=dict(os.environ,WEBBASE_ADMIN_PASSWORD=PASSWORD),capture_output=True,text=True,encoding='utf-8')
+    assert result.returncode==0,result.stdout+result.stderr
+c=Client(); c.page()
+status,ret,_=c.request('/admin/category/add',{'title':'blocked','pid':0},csrf=False)
+assert status==403 and ret['code']==0,ret
+status,ret,headers=c.request('/admin/login/captcha',{'type':'test','token':'test'},headers={'Origin':'https://untrusted.example'})
+assert 'Access-Control-Allow-Origin' not in headers
+assert ret['code']==1 and 'code' not in ret['data']
+c.login()
+assert 'password' not in state('session',session=c.sid())['user']
+status,ret,_=c.request('/admin/login/out')
+assert ret['code']==0 and 'POST' in ret['info'],ret
+
+name='test_'+uuid.uuid4().hex[:10]
+c.post('/admin/category/add',{'pid':0,'title':name,'sort':0})
+parent=sql('SELECT id FROM category WHERE title=?',[name])[0]['id']
+c.post('/admin/category/add',{'pid':parent,'title':name+'_child','sort':0})
+child=sql('SELECT id FROM category WHERE title=?',[name+'_child'])[0]['id']
+c.post('/admin/category/edit',{'id':parent,'pid':child,'title':name,'sort':0},0)
+c.post('/admin/category/remove',{'id':parent},0)
+c.post('/admin/category/edit',{'id':parent,'pid':0,'title':name+'_edited','sort':5})
+c.post('/admin/category/state',{'id':parent,'status':0})
+c.post('/admin/category/state',{'status':1},0)
+c.post('/admin/category/add',{'id':parent,'pid':0,'title':'must-not-edit'},0)
+c.post('/admin/category/edit',{'id':999999999,'pid':0,'title':'must-not-create'},0)
+c.post('/admin/category/remove',{'id':child})
+c.post('/admin/category/remove',{'id':parent})
+c.post('/admin/category/restore',{'id':child},0)
+c.post('/admin/category/restore',{'id':parent})
+c.post('/admin/category/restore',{'id':child})
+assert sql('SELECT deleted_at FROM category WHERE id=?',[child])[0]['deleted_at'] is None
+print('PASS: login, session rotation, CSRF/CORS, secret-free session, category CRUD/recycle/cycle rules')
+
+# PDF upload -> save attachment link -> reload -> public download.
+pdf=b'%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Count 0/Kids[]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n'
+key='test/'+uuid.uuid4().hex+'.pdf'
+digest=hashlib.md5(pdf).hexdigest()
+meta=c.post('/admin/api.upload/state',{'key':key,'size':len(pdf),'name':'test.pdf','hash':digest,'xext':'pdf','mime':'application/pdf','uptype':'local'},404)
+boundary='wb'+uuid.uuid4().hex
+def multipart(content,filename,key):
+    fields={'key':key,'safe':'0','uptype':'local'}
+    parts=[]
+    for field,value in fields.items(): parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="{field}"\r\n\r\n{value}\r\n'.encode())
+    parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{filename}"\r\nContent-Type: application/octet-stream\r\n\r\n'.encode()+content+b'\r\n')
+    return b''.join(parts)+f'--{boundary}--\r\n'.encode()
+status,uploaded,_=c.request('/admin/api.upload/file',body=multipart(pdf,'test.pdf',key),headers={'Content-Type':'multipart/form-data; boundary='+boundary})
+assert status==200 and uploaded['code']==1,uploaded
+url=uploaded['data']['url']
+c.post('/admin/api.upload/done',{'id':meta['data']['id'],'hash':digest})
+html=f'<p><a href="{url}">产品规格书 PDF</a></p>'
+c.post('/admin/category/edit',{'id':parent,'pid':0,'title':name+'_edited','sort':5,'desc':html})
+assert url in sql('SELECT `desc` FROM category WHERE id=?',[parent])[0]['desc']
+download=urllib.request.urlopen(url).read()
+assert download==pdf
+status,bad,_=c.request('/admin/api.upload/file',body=multipart(b'<?php echo 1;','spoof.pdf','test/spoof.pdf'),headers={'Content-Type':'multipart/form-data; boundary='+boundary})
+assert bad['code']==0,bad
+c.post('/admin/api.upload/state',{'key':'test/too-big.pdf','size':52428801,'name':'large.pdf','hash':'test','xext':'pdf','uptype':'local'},0)
+print('PASS: real PDF upload/save/reload/download, disguised file and oversized upload rejected')
+
+# Legacy MD5 login and modern password change invalidate old sessions.
+legacy='legacy_'+uuid.uuid4().hex[:8]
+sql('INSERT INTO system_user (username,nickname,password,status) VALUES (?,?,?,1)',[legacy,'Legacy test',hashlib.md5(b'legacy-password').hexdigest()],True)
+legacyClient=Client();legacyClient.login(legacy,'legacy-password')
+assert sql('SELECT password FROM system_user WHERE username=?',[legacy])[0]['password'].startswith('$2y$')
+role='role_'+uuid.uuid4().hex[:8]
+sql('INSERT INTO system_auth (title,status) VALUES (?,1)',[role],True)
+roleId=sql('SELECT id FROM system_auth WHERE title=?',[role])[0]['id']
+sql('UPDATE system_user SET authorize=? WHERE username=?',[str(roleId),legacy],True)
+sql('INSERT INTO system_auth_node (auth,node) VALUES (?,?)',[roleId,'admin/category/index'],True)
+_,allowed,_=legacyClient.request('/admin/category/index')
+assert isinstance(allowed,str) and 'CategoryTable' in allowed
+sql('DELETE FROM system_auth_node WHERE auth=?',[roleId],True)
+_,denied,_=legacyClient.request('/admin/category/index')
+assert isinstance(denied,dict) and denied['code']==0,denied
+newUser='new_'+uuid.uuid4().hex[:8]
+c.post('/admin/user/add',{'username':newUser,'nickname':'New user test','password':PASSWORD,'authorize':str(roleId)})
+assert sql('SELECT password FROM system_user WHERE username=?',[newUser])[0]['password'].startswith('$2y$')
+uid=sql('SELECT id FROM system_user WHERE username=?',[newUser])[0]['id']
+c.post('/admin/user/pass',{'id':uid,'password':'Reset integration password!','repassword':'Reset integration password!'})
+Client().login(newUser,'Reset integration password!')
+sql('UPDATE system_user SET status=0 WHERE username=?',[legacy],True)
+_,ret,_=legacyClient.request('/admin/index/pass?id=10000')
+assert isinstance(ret,dict) and ret['code']==0,ret
+admin2=Client();admin2.login()
+c.post('/admin/index/pass',{'id':10000,'oldpassword':PASSWORD,'password':'New integration password 2026!','repassword':'New integration password 2026!'})
+_,ret,_=admin2.request('/admin/category/index')
+assert isinstance(ret,dict) and ret['code']==0,ret
+c.login(password='New integration password 2026!')
+c.post('/admin/index/pass',{'id':10000,'oldpassword':'New integration password 2026!','password':PASSWORD,'repassword':PASSWORD})
+print('PASS: account creation/reset, legacy MD5 rehash, permission refresh, disabled-account and changed-password session invalidation')
+print('HTTP integration completed successfully.')

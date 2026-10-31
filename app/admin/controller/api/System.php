@@ -35,6 +35,9 @@ class System extends Controller
      */
     public function push()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         if (AdminService::isSuper()) {
             try {
                 RuntimeService::push() && sysoplog('系统运维管理', '刷新发布运行缓存');
@@ -56,6 +59,9 @@ class System extends Controller
      */
     public function clear()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         if (AdminService::isSuper()) {
             try {
                 RuntimeService::clear() && sysoplog('系统运维管理', '清理网站日志缓存');
@@ -77,6 +83,9 @@ class System extends Controller
      */
     public function debug()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         if (AdminService::isSuper()) {
             if (input('state')) {
                 RuntimeService::set('product');
@@ -98,6 +107,9 @@ class System extends Controller
      */
     public function editor()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         if (AdminService::isSuper()) {
             $editor = input('editor', 'auto');
             sysconf('base.editor', $editor);
@@ -114,6 +126,9 @@ class System extends Controller
      */
     public function config()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         if (AdminService::isSuper()) {
             try {
                 [$tmpdata, $newdata] = [[], []];

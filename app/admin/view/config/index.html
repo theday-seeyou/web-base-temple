@@ -43,7 +43,6 @@
     </div>
     <div class="layui-card-body layui-clear">
         <div class="layui-btn-group shadow-mini">
-            {if !in_array(sysconf('base.editor'),['ckeditor4','ckeditor5','wangEditor','auto'])}{php}sysconf('base.editor','wangEditor');{/php}{/if}
             {foreach ['ckeditor4'=>'CKEditor4','ckeditor5'=>'CKEditor5','wangEditor'=>'wangEditor','auto'=>lang('自适应模式')] as $k => $v}{if sysconf('base.editor') eq $k}
             {if auth('storage')}<a data-title="配置{$v}" class="layui-btn layui-btn-sm layui-btn-active">{$v}</a>{else}<a class="layui-btn layui-btn-sm layui-btn-active">{$v}</a>{/if}
             {else}

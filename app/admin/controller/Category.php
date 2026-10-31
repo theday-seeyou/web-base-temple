@@ -9,7 +9,7 @@ use WebBase\Core\Controller;
 use WebBase\Core\extend\DataExtend;
 
 /**
- * 栏目管理控制器.
+ * 树形分类示例控制器.
  * @class Category
  */
 class Category extends Controller
@@ -21,7 +21,7 @@ class Category extends Controller
      */
     public function index()
     {
-        $this->title = '栏目管理';
+        $this->title = '树形分类示例';
         $this->type = input('type', 'index');
         $query = $this->type === 'recycle' ? CategoryModel::mRecycleQuery() : CategoryModel::mQuery();
         $query->layTable();
@@ -99,6 +99,47 @@ class Category extends Controller
      */
     protected function _form_filter(array &$vo)
     {
+        if ($this->request->isPost()) {
+            $vo = array_intersect_key($vo, array_flip(['id', 'pid', 'title', 'sort', 'status', 'cover', 'icon', 'desc']));
+            $id = (int)($vo['id'] ?? 0);
+            $pid = (int)($vo['pid'] ?? 0);
+            $vo['pid'] = $pid;
+            if (trim((string)($vo['title'] ?? '')) === '' || mb_strlen((string)$vo['title']) > 100 || $pid < 0 ||
+                (isset($vo['status']) && !in_array((string)$vo['status'], ['0', '1'], true)) ||
+                (isset($vo['sort']) && (!ctype_digit((string)$vo['sort']) || (int)$vo['sort'] > 999999))) {
+                $this->error('分类名称、上级分类、排序或状态不合法。');
+            }
+            if ($id > 0 && !CategoryModel::mk()->where('id', $id)->count()) {
+                $this->error('分类不存在或已删除。');
+            }
+            $rows = CategoryModel::mk()->column('pid', 'id');
+            $seen = [];
+            $depth = 1;
+            for ($parent = $pid; $parent > 0; $parent = (int)$rows[$parent]) {
+                if ($parent === $id || isset($seen[$parent]) || !array_key_exists($parent, $rows)) {
+                    $this->error('上级分类不存在或存在循环关系。');
+                }
+                $seen[$parent] = true;
+                if (++$depth > 3) {
+                    $this->error('分类最多支持三级。');
+                }
+            }
+            // A moved subtree must fit the same depth limit.
+            $frontier = $id > 0 ? [$id] : [];
+            while ($frontier !== []) {
+                $children = [];
+                foreach ($rows as $child => $parent) {
+                    if (in_array((int)$parent, $frontier, true)) {
+                        $children[] = (int)$child;
+                    }
+                }
+                if ($children !== [] && ++$depth > 3) {
+                    $this->error('移动后子分类将超过三级，请先调整子分类。');
+                }
+                $frontier = $children;
+            }
+            return;
+        }
         if ($this->request->isGet()) {
             $vo['pid'] = $vo['pid'] ?? input('pid', '0');
             $categories = CategoryModel::mk()->order('sort asc,id asc')->column('id,pid,title', 'id');
@@ -108,6 +149,32 @@ class Category extends Controller
                     unset($this->categories[$key]);
                 }
             }
+        }
+    }
+
+    protected function _delete_filter($query)
+    {
+        $ids = (clone $query)->column('id');
+        if ($ids && CategoryModel::mk()->whereIn('pid', $ids)->whereNotIn('id', $ids)->count()) {
+            $this->error('请先删除子分类，或同时选择完整子树。');
+        }
+    }
+
+    protected function _restore_filter($query)
+    {
+        $rows = (clone $query)->column('pid', 'id');
+        foreach ($rows as $pid) {
+            if ((int)$pid > 0 && !array_key_exists($pid, $rows) && !CategoryModel::mk()->where('id', $pid)->count()) {
+                $this->error('请先恢复上级分类。');
+            }
+        }
+    }
+
+    protected function _force_delete_filter($query)
+    {
+        $ids = (clone $query)->column('id');
+        if ($ids && CategoryModel::mk()->withTrashed()->whereIn('pid', $ids)->whereNotIn('id', $ids)->count()) {
+            $this->error('请先永久删除子分类，或同时选择完整子树。');
         }
     }
 }

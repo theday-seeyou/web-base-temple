@@ -7,7 +7,7 @@ namespace app\admin\model;
 use WebBase\Core\BaseModel;
 
 /**
- * 栏目模型.
+ * 树形分类示例模型.
  *
  * @property int $id
  * @property int $pid 上级栏目ID
@@ -28,7 +28,7 @@ class Category extends BaseModel
      * 操作日志类型.
      * @var string
      */
-    protected $oplogType = '栏目管理';
+    protected $oplogType = '树形分类示例';
 
     /**
      * 操作日志名称.

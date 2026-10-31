@@ -22,6 +22,8 @@ use WebBase\Core\Exception;
 use WebBase\Core\extend\CodeExtend;
 use WebBase\Core\model\SystemUser;
 use WebBase\Core\service\AdminService;
+use WebBase\Core\service\PasswordService;
+use WebBase\Core\service\RateLimitService;
 use WebBase\Core\service\CaptchaService;
 use WebBase\Core\service\RuntimeService;
 use WebBase\Core\service\SystemService;
@@ -58,13 +60,12 @@ class Login extends Controller
                     ];
                 }
                 $this->loginStyle = sprintf('style="background-image:url(%s)" data-bg-transition="%s"', $images[0], join(',', $images));
-                // 更新后台主域名，用于部分无法获取域名的场景调用
-                if ($this->request->domain() !== sysconf('base.site_host|raw')) {
-                    sysconf('base.site_host', $this->request->domain());
-                }
                 $this->fetch();
             }
         } else {
+            if (!RateLimitService::hit('login:ip:' . $this->request->ip(), 40, 900)) {
+                $this->error('登录尝试过于频繁，请 15 分钟后重试。');
+            }
             $data = $this->_vali([
                 'username.require' => '登录账号不能为空!',
                 'username.min:4' => '账号不能少于4位字符!',
@@ -72,9 +73,14 @@ class Login extends Controller
                 'password.min:4' => '密码不能少于4位字符!',
                 'verify.require' => '图形验证码不能为空!',
                 'uniqid.require' => '图形验证标识不能为空!',
-            ]);
-            if (!CaptchaService::instance()->check($data['verify'], $data['uniqid'])) {
+            ], PasswordService::input($this->request));
+            $challenge = $this->app->session->get('login_captcha', '');
+            $this->app->session->delete('login_captcha');
+            if (!hash_equals((string)$challenge, $data['uniqid']) || !CaptchaService::instance()->check($data['verify'], $data['uniqid'])) {
                 $this->error('图形验证码验证失败，请重新输入!');
+            }
+            if (!RateLimitService::hit('login:user:' . strtolower($data['username']), 15, 900)) {
+                $this->error('登录尝试过于频繁，请 15 分钟后重试。');
             }
             /* ! 用户信息验证 */
             $map = ['username' => $data['username']];
@@ -87,10 +93,16 @@ class Login extends Controller
                 $this->app->session->set('LoginInputSessionError', true);
                 $this->error('账号已经被禁用，请联系管理员!');
             }
-            if (md5("{$user['password']}{$data['uniqid']}") !== $data['password']) {
+            if (!PasswordService::verify($data['password'], (string)$user['password'])) {
                 $this->app->session->set('LoginInputSessionError', true);
                 $this->error('登录账号或密码错误，请重新输入!');
             }
+            if (PasswordService::needsRehash((string)$user['password'])) {
+                $user->save(['password' => PasswordService::upgrade($data['password'])]);
+            }
+            $this->app->session->regenerate(true);
+            $this->app->session->delete('_csrf');
+            $this->app->session->set('auth_password', hash('sha256', (string)$user['password']));
             $user->hidden(['sort', 'status', 'password', 'deleted_at']);
             $this->app->session->set('user', $user->toArray());
             $this->app->session->delete('LoginInputSessionError');
@@ -110,16 +122,23 @@ class Login extends Controller
      */
     public function captcha()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         $input = $this->_vali([
             'type.require' => '类型不能为空!',
             'token.require' => '标识不能为空!',
         ]);
-        $image = CaptchaService::instance()->initialize();
-        $captcha = ['image' => $image->getData(), 'uniqid' => $image->getUniqid()];
-        // 未发生异常时，直接返回验证码内容
-        if (!$this->app->session->get('LoginInputSessionError')) {
-            $captcha['code'] = $image->getCode();
+        if (!RateLimitService::hit('captcha:ip:' . $this->request->ip(), 60, 300)) {
+            $this->error('验证码请求过于频繁，请稍后再试。');
         }
+        $previous = $this->app->session->get('login_captcha', '');
+        if ($previous) {
+            $this->app->cache->delete($previous);
+        }
+        $image = CaptchaService::instance()->initialize();
+        $this->app->session->set('login_captcha', $image->getUniqid());
+        $captcha = ['image' => $image->getData(), 'uniqid' => $image->getUniqid()];
         $this->success('生成验证码成功', $captcha);
     }
 
@@ -128,6 +147,9 @@ class Login extends Controller
      */
     public function out()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         $this->app->session->destroy();
         $this->success('退出登录成功!', sysuri('admin/login/index'));
     }

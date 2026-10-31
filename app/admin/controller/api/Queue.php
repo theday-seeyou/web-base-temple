@@ -35,6 +35,9 @@ class Queue extends Controller
      */
     public function stop()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         if (AdminService::isSuper()) {
             try {
                 $message = $this->app->console->call('webbase:queue', ['stop'])->fetch();
@@ -63,6 +66,9 @@ class Queue extends Controller
      */
     public function start()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         if (AdminService::isSuper()) {
             try {
                 $message = $this->app->console->call('webbase:queue', ['start'])->fetch();

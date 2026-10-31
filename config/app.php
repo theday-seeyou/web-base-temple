@@ -29,14 +29,14 @@ return [
     'domain_bind'             => [],
     // 禁止访问（多应用模式有效）
     'deny_app_list'           => [],
-    // CORS 启用状态（默认开启跨域）
-    'cors_on'                 => true,
-    // CORS 配置跨域域名（仅需填域名，留空则自动域名）
+    // CORS 启用状态（默认同源）
+    'cors_on'                 => false,
+    // CORS 精确来源白名单，如 https://admin.example.com；空列表不放行
     'cors_host'               => [],
     // CORS 授权请求方法
     'cors_methods'            => 'GET,PUT,POST,PATCH,DELETE',
     // CORS 跨域头部字段
-    'cors_headers'            => 'Api-Type,Api-Name,Api-Uuid,Jwt-Token,Api-Token,User-Form-Token,User-Token,Token',
+    'cors_headers'            => 'Api-Type,Api-Name,Api-Uuid,Jwt-Token,Api-Token,X-CSRF-Token,User-Form-Token,User-Token,Token',
     // X-Frame-Options 配置
     'cors_frame'              => 'sameorigin',
     // RBAC 登录页面（填写登录地址）

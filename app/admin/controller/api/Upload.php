@@ -21,6 +21,7 @@ use WebBase\Core\Controller;
 use WebBase\Core\helper\QueryHelper;
 use WebBase\Core\model\SystemFile;
 use WebBase\Core\service\AdminService;
+use WebBase\Core\service\UploadPolicy;
 use WebBase\Core\Storage;
 use WebBase\Core\storage\AliossStorage;
 use WebBase\Core\storage\AlistStorage;
@@ -58,6 +59,7 @@ class Upload extends Controller
         }
         $data['exts'] = json_encode($data['exts'], JSON_UNESCAPED_UNICODE);
         $data['nameType'] = sysconf('storage.name_type|raw') ?: 'xmd5';
+        $data['maxBytes'] = $this->app->config->get('upload.max_bytes', UploadPolicy::MAX_BYTES);
         return view(dirname(__DIR__, 2) . '/view/api/upload.js', $data)->contentType('application/x-javascript');
     }
 
@@ -91,8 +93,12 @@ class Upload extends Controller
      */
     public function state()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         try {
             [$uuid, $unid] = $this->initUnid();
+            UploadPolicy::assertMetadata(strtolower((string)input('xext')), (int)input('size'), str2arr(sysconf('storage.allow_exts|raw')), (int)$this->app->config->get('upload.max_bytes', UploadPolicy::MAX_BYTES));
             [$name, $safe] = [input('name'), $this->getSafe()];
             $data = ['uptype' => $this->getType(), 'safe' => intval($safe), 'key' => input('key')];
             $file = SystemFile::mk()->data($this->_vali([
@@ -116,6 +122,10 @@ class Upload extends Controller
                 $file->save(['xurl' => $info['url'], 'isfast' => 1, 'issafe' => $data['safe']]);
                 $extr = ['id' => $file->id ?? 0, 'url' => $info['url'], 'key' => $info['key']];
                 $this->success('文件已经上传', array_merge($data, $extr), 200);
+            } elseif ($data['uptype'] !== 'local' && !$this->app->config->get('upload.direct_upload', false)) {
+                $data['proxy'] = true;
+                $data['url'] = Storage::instance($data['uptype'])->url($data['key'], $safe, $name);
+                $data['server'] = LocalStorage::instance()->upload();
             } elseif ($data['uptype'] === 'local') {
                 $local = LocalStorage::instance();
                 $data['url'] = $local->url($data['key'], $safe, $name);
@@ -173,6 +183,9 @@ class Upload extends Controller
      */
     public function done()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         [$uuid, $unid] = $this->initUnid();
         $data = $this->_vali([
             'id.require' => '编号不能为空！',
@@ -197,13 +210,21 @@ class Upload extends Controller
      */
     public function file()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         [$uuid, $unid, $unexts] = $this->initUnid();
         // 开始处理文件上传
         $file = $this->getFile();
         $extension = strtolower($file->getOriginalExtension());
+        try {
+            UploadPolicy::assertFile($file->getPathname(), $extension, str2arr(sysconf('storage.allow_exts|raw')), (int)$this->app->config->get('upload.max_bytes', UploadPolicy::MAX_BYTES));
+        } catch (\InvalidArgumentException $exception) {
+            $this->error($exception->getMessage());
+        }
         $saveFileName = input('key') ?: Storage::name($file->getPathname(), $extension, '', 'md5_file');
         // 检查文件名称是否合法
-        if (strpos($saveFileName, '..') !== false) {
+        if (!preg_match('#^[a-zA-Z0-9_-]+(?:/[a-zA-Z0-9_-]+)*\.[a-z0-9]+$#D', $saveFileName)) {
             $this->error('文件路径不能出现跳级操作！');
         }
         // 检查文件后缀是否被恶意修改
@@ -233,7 +254,7 @@ class Upload extends Controller
                     $file->move(dirname($distName), basename($distName));
                 }
                 $info = $local->info($saveFileName, $safeMode, $file->getOriginalName());
-                if (in_array($extension, ['jpg', 'gif', 'png', 'bmp', 'jpeg', 'wbmp'])) {
+                if (in_array($extension, ['jpg', 'gif', 'png', 'webp', 'jpeg'])) {
                     if ($this->imgNotSafe($distName) && $local->del($saveFileName)) {
                         $this->error('图片未通过安全检查！');
                     }

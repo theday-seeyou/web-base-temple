@@ -61,10 +61,6 @@ class Config extends Controller
         $this->systemid = ModuleService::getRunVar('uni');
         $this->framework = ModuleService::getLibrarys('topthink/framework');
         $this->webbase = ModuleService::getLibrarys('theday-seeyou/web-base-core');
-        if (AdminService::isSuper() && $this->app->session->get('user.password') === md5('admin')) {
-            $url = url('admin/index/pass', ['id' => AdminService::getUserId()]);
-            $this->showErrorMessage = lang("超级管理员账号的密码未修改，建议立即<a data-modal='%s'>修改密码</a>！", [$url]);
-        }
         uasort($this->plugins, static function ($a, $b) {
             if ($a['space'] === $b['space']) {
                 return 0;
@@ -87,6 +83,7 @@ class Config extends Controller
             $this->fetch();
         } else {
             $post = $this->request->post();
+            unset($post['_token_']);
             // 修改网站后台入口路径
             if (!empty($post['xpath'])) {
                 if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $post['xpath'])) {
@@ -136,6 +133,7 @@ class Config extends Controller
             $this->fetch("storage-{$this->type}");
         } else {
             $post = $this->request->post();
+            unset($post['_token_']);
             if (!empty($post['storage']['allow_exts'])) {
                 $deny = ['sh', 'asp', 'bat', 'cmd', 'exe', 'php'];
                 $exts = array_unique(str2arr(strtolower($post['storage']['allow_exts'])));

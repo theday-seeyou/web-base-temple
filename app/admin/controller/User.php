@@ -23,6 +23,7 @@ use WebBase\Core\model\SystemAuth;
 use WebBase\Core\model\SystemBase;
 use WebBase\Core\model\SystemUser;
 use WebBase\Core\service\AdminService;
+use WebBase\Core\service\PasswordService;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\DbException;
 use think\db\exception\ModelNotFoundException;
@@ -95,12 +96,17 @@ class User extends Controller
                 'password.require' => '登录密码不能为空！',
                 'repassword.require' => '重复密码不能为空！',
                 'repassword.confirm:password' => '两次输入的密码不一致！',
-            ]);
+            ], PasswordService::input($this->request));
             $user = SystemUser::mk()->findOrEmpty($data['id']);
-            if ($user->isExists() && $user->save(['password' => md5($data['password'])])) {
+            try {
+                $hash = PasswordService::hash($data['password']);
+            } catch (\InvalidArgumentException $exception) {
+                $this->error($exception->getMessage());
+            }
+            if ($user->isExists() && $user->save(['password' => $hash])) {
                 // 修改密码同步事件处理
                 $this->app->event->trigger('PluginAdminChangePassword', [
-                    'uuid' => $data['id'], 'pass' => $data['password'],
+                    'uuid' => $data['id'],
                 ]);
                 sysoplog('系统用户管理', "修改用户[{$data['id']}]密码成功");
                 $this->success('密码修改成功，请使用新密码登录！', '');
@@ -162,23 +168,28 @@ class User extends Controller
     protected function _form_filter(array &$data)
     {
         if ($this->request->isPost()) {
+            $data = array_intersect_key($data, array_flip(['id', 'username', 'nickname', 'headimg', 'authorize', 'usertype', 'contact_qq', 'contact_phone', 'contact_mail', 'describe', 'status']));
             // 检查资料是否完整
             empty($data['username']) && $this->error('登录账号不能为空！');
             if ($data['username'] !== AdminService::getSuperName()) {
                 empty($data['authorize']) && $this->error('未配置权限！');
             }
             // 处理上传的权限格式
-            $data['authorize'] = arr2str($data['authorize'] ?? []);
+            $roles = $data['authorize'] ?? [];
+            $data['authorize'] = arr2str(is_array($roles) ? $roles : str2arr((string)$roles));
             if (empty($data['id'])) {
                 // 检查账号是否重复
                 $map = ['username' => $data['username']];
                 if (SystemUser::mk()->withTrashed()->where($map)->count() > 0) {
                     $this->error('账号已经存在，请使用其它账号！');
                 }
-                // 新添加的用户密码与账号相同
-                $data['password'] = md5($data['username']);
+                try {
+                    $data['password'] = PasswordService::hash($this->request->post('password/s', '', null));
+                } catch (\InvalidArgumentException $exception) {
+                    $this->error($exception->getMessage());
+                }
             } else {
-                unset($data['username']);
+                unset($data['username'], $data['password']);
             }
         } else {
             // 权限绑定处理

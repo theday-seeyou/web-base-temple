@@ -85,12 +85,15 @@ class File extends Controller
      */
     public function distinct()
     {
+        if (!$this->request->isPost()) {
+            $this->error('请使用 POST 请求。');
+        }
         $map = ['issafe' => 0, 'uuid' => AdminService::getUserId()];
         // 使用派生表包装子查询，避免直接引用同一表
         $keepSubQuery = SystemFile::mk()->fieldRaw('MAX(id) AS id')->where($map)->group('type, xkey')->buildSql();
         // 使用 whereNotExists 配合派生表子查询删除，避免 1093 错误和 whereIn
-        SystemFile::mk()->where($map)->whereNotExists(function ($query) use ($keepSubQuery) {
-            $query->table("({$keepSubQuery})")->alias('f2')->whereRaw('f2.id = system_file.id');
+        SystemFile::mk()->alias('source')->where($map)->whereNotExists(function ($query) use ($keepSubQuery) {
+            $query->table("({$keepSubQuery})")->alias('f2')->whereRaw('f2.id = source.id');
         })->delete();
         $this->success('清理重复文件成功！');
     }

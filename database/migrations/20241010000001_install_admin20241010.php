@@ -297,7 +297,7 @@ class InstallAdmin20241010 extends Migrator
         PhinxExtend::upgrade($table, [
             ['usertype', 'string', ['limit' => 20, 'default' => '', 'null' => true, 'comment' => '用户类型']],
             ['username', 'string', ['limit' => 50, 'default' => '', 'null' => true, 'comment' => '用户账号']],
-            ['password', 'string', ['limit' => 32, 'default' => '', 'null' => true, 'comment' => '用户密码']],
+            ['password', 'string', ['limit' => 255, 'default' => '', 'null' => true, 'comment' => '用户密码']],
             ['nickname', 'string', ['limit' => 50, 'default' => '', 'null' => true, 'comment' => '用户昵称']],
             ['headimg', 'string', ['limit' => 255, 'default' => '', 'null' => true, 'comment' => '头像地址']],
             ['authorize', 'string', ['limit' => 255, 'default' => '', 'null' => true, 'comment' => '权限授权']],

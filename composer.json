@@ -3,11 +3,11 @@
   "type": "project",
   "license": "MIT",
   "homepage": "https://github.com/theday-seeyou/web-base-temple",
-  "description": "Bilingual enterprise CMS and website starter built on ThinkPHP",
+  "description": "Reusable ThinkPHP administration starter built on WebBase Core",
   "keywords": [
-    "cms",
-    "enterprise-website",
-    "multilingual",
+    "admin",
+    "starter",
+    "rbac",
     "thinkphp"
   ],
   "authors": [
@@ -18,7 +18,7 @@
   "require": {
     "php": ">=8.1",
     "ext-json": "*",
-    "theday-seeyou/web-base-core": "^0.3",
+    "theday-seeyou/web-base-core": "^0.4",
     "topthink/framework": "^8.0",
     "topthink/think-migration": "^3.0",
     "topthink/think-orm": "^3.0",
@@ -36,6 +36,9 @@
   },
   "config": {
     "allow-plugins": {},
+    "platform": {
+      "php": "8.1.0"
+    },
     "sort-packages": true
   }
 }

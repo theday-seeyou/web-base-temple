@@ -46,7 +46,7 @@ define(['md5', 'notify'], function (SparkMD5, Notify, allowMime) {
         let types = String(resolveValue($elem, $input, 'type', '') || '');
         option.elem = $elem;
         option.input = $input.length ? $input : undefined;
-        option.size = parseInt(resolveValue($elem, $input, 'size', 0)) || 0;
+        option.size = Math.min(parseInt(resolveValue($elem, $input, 'size', 0)) || {$maxBytes|raw}, {$maxBytes|raw});
         option.safe = readOptionBool(resolveValue($elem, $input, 'safe', 0)) ? 1 : 0;
         option.hide = readOptionBool(resolveValue($elem, $input, 'hload', 0)) ? 1 : 0;
         option.mult = parseInt(resolveValue($elem, $input, 'multiple', 0)) > 0;
@@ -172,7 +172,9 @@ define(['md5', 'notify'], function (SparkMD5, Notify, allowMime) {
                     uploader.form.append('key', ret.data.key);
                     uploader.form.append('safe', ret.data.safe);
                     uploader.form.append('uptype', ret.data.uptype);
-                    if (ret.data.uptype === 'qiniu') {
+                    if (ret.data.proxy) {
+                        // The server validates the file before forwarding it.
+                    } else if (ret.data.uptype === 'qiniu') {
                         uploader.form.append('token', ret.data.token);
                     } else if (ret.data.uptype === 'alist') {
                         uploader.type = 'put';
@@ -203,7 +205,7 @@ define(['md5', 'notify'], function (SparkMD5, Notify, allowMime) {
                         uploader.form.append('Content-Disposition', 'inline;filename=' + encodeURIComponent(file.name));
                     }
                     uploader.form.append('file', file, file.name), jQuery.ajax({
-                        xhrFields: {withCredentials: ret.data.uptype === 'local'}, headers: uploader.head, url: uploader.url, data: uploader.form, type: uploader.type || 'post', xhr: function (xhr) {
+                        xhrFields: {withCredentials: ret.data.proxy || ret.data.uptype === 'local'}, headers: uploader.head, url: uploader.url, data: uploader.form, type: uploader.type || 'post', xhr: function (xhr) {
                             xhr = new XMLHttpRequest();
                             return xhr.upload.addEventListener('progress', function (event) {
                                 file.xtotal = event.total, file.xloaded = event.loaded || 0;

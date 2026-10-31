@@ -1,0 +1,53 @@
+name: Verify Starter
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  installed-integration:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.1', '8.2', '8.3']
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: testing
+          MYSQL_DATABASE: webbase_test_main
+        ports: ['3306:3306']
+        options: --health-cmd="mysqladmin ping -ptesting" --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      WEBBASE_TEST_ISOLATED: '1'
+      WEBBASE_TEST_DB_NAME: webbase_test_main
+      WEBBASE_TEST_DB_PASSWORD: testing
+      WEBBASE_TEST_FIXTURE: ${{ runner.temp }}/starter-fixture
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, gd, mbstring, openssl, pdo_mysql, fileinfo, zip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: composer validate --strict --no-check-publish
+      - run: composer audit --locked --no-interaction
+      - run: find app config database tests -name '*.php' -print0 | xargs -0 -n1 php -l
+      - run: npm ci --ignore-scripts && npm run build
+        working-directory: public/static/theme/css
+      - run: python3 tests/prepare_fixture.py
+      - run: composer install --no-interaction --prefer-dist
+        working-directory: ${{ runner.temp }}/starter-fixture
+      - run: php think migrate:run && php think migrate:run
+        working-directory: ${{ runner.temp }}/starter-fixture
+      - run: python3 tests/migrations.py
+        working-directory: ${{ runner.temp }}/starter-fixture
+      - run: php -d upload_max_filesize=50M -d post_max_size=52M -S 127.0.0.1:18381 -t public public/router.php > /tmp/starter-http.log 2>&1 &
+        working-directory: ${{ runner.temp }}/starter-fixture
+      - run: python3 tests/integration.py
+        working-directory: ${{ runner.temp }}/starter-fixture
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: starter-http-log
+          path: /tmp/starter-http.log

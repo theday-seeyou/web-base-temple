@@ -13,6 +13,11 @@
 !composer.json
 
 /.codex-tmp
+/docs/internal
+/docs/superpowers
+
+__pycache__/
+*.pyc
 
 /404.html
 /.user.ini
@@ -28,3 +33,5 @@
 /public/static/theme/css/node_modules
 /public/static/theme/css/package-lock.json
 
+# Reproducible local theme build
+!public/static/theme/css/package-lock.json

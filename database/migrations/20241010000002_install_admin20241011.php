@@ -41,24 +41,8 @@ class InstallAdmin20241011 extends Migrator
      */
     public function change()
     {
-        $this->insertUser();
         $this->insertMenu();
         $this->insertConf();
-    }
-
-    /**
-     * 初始化用户数据.
-     */
-    private function insertUser()
-    {
-        $model = SystemUser::mk()->whereRaw('1=1')->findOrEmpty();
-        $model->isEmpty() && $model->save([
-            'id' => '10000',
-            'username' => 'admin',
-            'nickname' => '超级管理员',
-            'password' => '21232f297a57a5a743894a0e4a801fc3',
-            'headimg' => '/static/theme/img/headimg.png',
-        ]);
     }
 
     /**
@@ -70,13 +54,13 @@ class InstallAdmin20241011 extends Migrator
         $modal->isEmpty() && $modal->insertAll([
             ['type' => 'base', 'name' => 'app_name', 'value' => 'WebBase CMS'],
             ['type' => 'base', 'name' => 'app_version', 'value' => 'v6'],
-            ['type' => 'base', 'name' => 'editor', 'value' => 'ckeditor5'],
+            ['type' => 'base', 'name' => 'editor', 'value' => 'wangEditor'],
             ['type' => 'base', 'name' => 'login_name', 'value' => '系统管理'],
             ['type' => 'base', 'name' => 'site_copy', 'value' => '©版权所有 2014-' . date('Y') . ' WebBase CMS'],
             ['type' => 'base', 'name' => 'site_icon', 'value' => ''],
             ['type' => 'base', 'name' => 'site_name', 'value' => 'WebBase CMS'],
             ['type' => 'base', 'name' => 'site_theme', 'value' => 'default'],
-            ['type' => 'storage', 'name' => 'allow_exts', 'value' => 'doc,gif,ico,jpg,mp3,mp4,p12,pem,png,zip,rar,xls,xlsx'],
+            ['type' => 'storage', 'name' => 'allow_exts', 'value' => 'pdf,doc,docx,gif,ico,jpg,jpeg,webp,mp3,mp4,png,zip,rar,xls,xlsx'],
             ['type' => 'storage', 'name' => 'type', 'value' => 'local'],
             ['type' => 'wechat', 'name' => 'type', 'value' => 'api'],
         ]);
