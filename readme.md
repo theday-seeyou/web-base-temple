@@ -145,6 +145,7 @@ Web 服务器的站点根目录必须指向 `public/`。不要把 `.env`、源�
 - [后台 CRUD、回收站与富文本编辑器](docs/crud-recycle-editor.md)
 - [Composer 发布说明](docs/publishing.md)
 - [安装、安全升级与部署](docs/installation-security.md)
+- [0.4.0 正式安装验收](docs/releases/0.4.0.md)
 - [第三方声明](THIRD_PARTY_NOTICES.md)
 
 ## 开源协议
