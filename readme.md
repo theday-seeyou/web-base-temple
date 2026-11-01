@@ -232,6 +232,7 @@ Drupal、PbootCMS、迅睿、Statamic、Craft、October、Strapi、Directus、Pa
 - [0.4.0 正式安装验收](docs/releases/0.4.0.md)
 - [0.5.0 标准字段与全新安装验收](docs/releases/0.5.0.md)
 - [0.5.1 后台与中英文首页验收](docs/releases/0.5.1.md)
+- [0.6.0 后台全局语言发布验收](docs/releases/0.6.0.md)
 - [第三方声明](THIRD_PARTY_NOTICES.md)
 
 ## 开源协议
