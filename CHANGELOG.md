@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0 - 2026-11-01
+
+- Add a global administration language context with account preferences, enabled languages and a super-administrator default-language setting.
+- Provide a connected Chinese/English segmented selector using the existing Layui button group, with a clear selected state, keyboard access and mobile layout.
+- Preserve the current page and unsaved-form confirmation when switching; reject stale-language asynchronous requests before controller execution.
+- Translate the shared administration controls, language settings and category example while keeping website visitor language independent.
+- Add language integration coverage and fix the GitHub Actions fixture environment so the workflow can start.
+- Keep the published Core ^0.5.1 dependency and lock file unchanged. This release does not add private CMS, content-model or template-installation features.
+
 ## 0.5.0 - 2026-11-01
 
 - Rebuild installation migrations as a fresh-install baseline with auto-increment id, created_at, updated_at and nullable deleted_at on every default application table.

@@ -5,9 +5,12 @@ WebBase 使用两个独立 GitHub 与 Packagist 包：
 - Starter：`theday-seeyou/web-base-temple`
 - 核心包：`theday-seeyou/web-base-core`
 
-## 0.5 配套版本规则
+## 当前配套版本规则
 
 标准时间字段、迁移模板和密码校验要求 Starter 与 Core 配套。当前 Starter 依赖 **Core ^0.5.1**，使用全新安装基线，不自动转换旧数据库。先发布 Core 并确认 Packagist 可安装，再更新 Starter 依赖与 composer.lock。
+
+Starter **0.6.0** 发布后台全局语言与连体切换控件，继续使用 Core **0.5.1**。
+两个包独立编号；仅修改 Starter 时不需要给没有代码变化的 Core 重复发版。
 
 公开 manifest 与锁文件只使用正式 Packagist 版本。tests/prepare_fixture.py 默认复制锁文件并以 composer install 验证正式依赖；需要联调未发布 Core 时可显式指定 WEBBASE_CORE_SOURCE，但临时 path 配置和锁文件不能提交到 Starter。
 
@@ -34,7 +37,7 @@ composer require theday-seeyou/web-base-core:^0.5
 在 `web-base-temple` 仓库执行：
 
 1. 将 `composer.json` 中的核心包约束更新到已发布版本。
-2. 执行 `composer update theday-seeyou/web-base-core --with-all-dependencies`。
+2. 核心包约束有变化时执行 `composer update theday-seeyou/web-base-core --with-all-dependencies`；没有变化时保留现有正式锁文件。
 3. 执行迁移、后台登录页和最小启动测试。
 4. 提交 `composer.json` 与 `composer.lock`。
 5. 创建 Starter 版本标签并推送。
@@ -43,7 +46,7 @@ composer require theday-seeyou/web-base-core:^0.5
 使用临时目录验证正式发布包：
 
 ```bash
-composer create-project theday-seeyou/web-base-temple webbase-release-test "^0.5"
+composer create-project theday-seeyou/web-base-temple webbase-release-test "0.6.0"
 ```
 
 测试目录中不得存在自定义 `repositories` 或本地 `path` 配置，确保安装内容确实来自 Packagist。

@@ -18,7 +18,7 @@ WebBase Starter 是基于 ThinkPHP 8 和自有 Composer 核心包
 推荐直接使用 Composer 创建独立站点：
 
 ```bash
-composer create-project theday-seeyou/web-base-temple my-admin-project "^0.5"
+composer create-project theday-seeyou/web-base-temple my-admin-project "^0.6"
 cd my-admin-project
 ```
 
@@ -76,7 +76,7 @@ php think run -H 127.0.0.1 -p 8000
 
 密码须为 12–72 字节。已有账号不会被初始化命令覆盖。若 8000 端口已被占用，可将 `-p 8000` 改为其他端口。
 
-0.5 系列使用配套的 Core 0.5，仅面向全新安装。密码使用 bcrypt，不支持 MD5 账号，
+Starter 0.6 使用已发布的 Core ^0.5.1，仅面向全新安装。密码使用 bcrypt，不支持 MD5 账号，
 不转换旧数据库的删除标记或时间字段。请使用独立空数据库初始化，详见
 [安装、安全与部署](docs/installation-security.md)。
 

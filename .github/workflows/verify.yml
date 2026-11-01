@@ -20,7 +20,6 @@ jobs:
       WEBBASE_TEST_ISOLATED: '1'
       WEBBASE_TEST_DB_NAME: webbase_test_main
       WEBBASE_TEST_DB_PASSWORD: testing
-      WEBBASE_TEST_FIXTURE: ${{ runner.temp }}/starter-fixture
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -36,6 +35,8 @@ jobs:
       - run: npm ci --ignore-scripts && npm run build
         working-directory: public/static/theme/css
       - run: python3 tests/prepare_fixture.py
+        env:
+          WEBBASE_TEST_FIXTURE: ${{ runner.temp }}/starter-fixture
       - run: composer install --no-interaction --prefer-dist
         working-directory: ${{ runner.temp }}/starter-fixture
       - run: php think migrate:run && php think migrate:run
