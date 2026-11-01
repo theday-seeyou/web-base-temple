@@ -2,17 +2,18 @@
 
 ## 模型约定
 
-需要软删除和回收站的模型必须继承 `WebBase\Core\BaseModel`。数据表只允许使用一个删除字段：
+需要软删除和回收站的模型必须继承 `WebBase\Core\BaseModel`，自动写入 `created_at`、
+`updated_at`，并以 `deleted_at` 作为唯一删除字段。在继承
+`WebBase\Core\migration\Migrator` 的迁移中创建表：
 
 ```php
-->addColumn('deleted_at', 'datetime', [
-    'null' => true,
-    'default' => null,
-    'comment' => '删除时间',
-])
+$this->createTable('articles')
+    ->addColumn('title', 'string', ['limit' => 200])
+    ->create();
 ```
 
-不再使用 `deleted`、`is_deleted`、`delete_time` 或其他兼容字段。
+自动包含自增主键 `id` 和三个 DATETIME 时间字段；`deleted_at` 可空且默认 NULL，
+创建、更新时间非空。不再使用 `deleted`、`is_deleted`、`delete_time` 或其他兼容字段。
 
 ## 控制器标准接口
 
@@ -27,7 +28,7 @@ public function index()
     $query->layTable(null, function (QueryHelper $query) {
         $query->equal('status,category_id')
             ->like('title')
-            ->dateBetween('create_at');
+            ->dateBetween('created_at');
     });
 }
 

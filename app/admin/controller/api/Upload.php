@@ -84,7 +84,7 @@ class Upload extends Controller
                 $query->where($unid ? ['unid' => $unid] : ['uuid' => $uuid]);
             }
             $query->where(['status' => 2, 'issafe' => 0])->in('xext#type');
-            $query->like('name,hash')->dateBetween('create_at')->order('id desc');
+            $query->like('name,hash')->dateBetween('created_at')->order('id desc');
         });
     }
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Phinx\Migration\AbstractMigration;
+use WebBase\Core\migration\Migrator;
 
-final class CreateCategoryTable extends AbstractMigration
+final class CreateCategoryTable extends Migrator
 {
     /**
      * Change Method.
@@ -19,7 +19,7 @@ final class CreateCategoryTable extends AbstractMigration
      */
     public function change(): void
     {
-        $table = $this->table('category', [
+        $table = $this->createTable('category', [
             'engine' => 'InnoDB',
             'collation' => 'utf8mb4_general_ci',
             'comment' => '栏目管理',
@@ -64,21 +64,6 @@ final class CreateCategoryTable extends AbstractMigration
                 'signed' => false,
                 'default' => 1,
                 'comment' => '状态(1启用,0禁用)',
-            ])
-            ->addColumn('deleted_at', 'datetime', [
-                'null' => true,
-                'default' => null,
-                'comment' => '删除时间',
-            ])
-            ->addColumn('create_at', 'datetime', [
-                'null' => true,
-                'default' => null,
-                'comment' => '创建时间',
-            ])
-            ->addColumn('update_at', 'datetime', [
-                'null' => true,
-                'default' => null,
-                'comment' => '更新时间',
             ])
             ->addIndex(['pid'], ['name' => 'idx_pid'])
             ->create();

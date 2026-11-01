@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 - 2026-11-01
+
+- Rebuild installation migrations as a fresh-install baseline with auto-increment id, created_at, updated_at and nullable deleted_at on every default application table.
+- Use matching Core ^0.5, standardize controller filters, views, exports and seeds, and remove historical schema conversion migrations.
+- Make migrate:create use the Core migration template; createTable automatically adds the standard columns and deleted_at index.
+- Reject MD5 accounts without rewriting their passwords. Preserve modern bcrypt cost rehashing.
+- Verify empty and wb_ prefixes, all table columns, model timestamps, soft deletion/restore/permanent deletion, generated migration rollback, repeat execution and occupied-table refusal; retain HTTP authentication, CRUD and attachment tests.
+- This release supports new installations only. Earlier release tags and their acceptance reports are unchanged.
+
 ## 0.4.0 - 2026-11-01
 
 - Require the matching published WebBase Core ^0.4 release and commit the resolved lock file.

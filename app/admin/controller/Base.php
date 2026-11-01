@@ -48,7 +48,7 @@ class Base extends Controller
             $this->type = $this->get['type'] ?? ($this->types[0] ?? '-');
         }, static function (QueryHelper $query) {
             $query->equal('type');
-            $query->like('code,name,status')->dateBetween('create_at');
+            $query->like('code,name,status')->dateBetween('created_at');
         });
     }
 

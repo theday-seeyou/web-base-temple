@@ -3,7 +3,7 @@
 declare(strict_types=1);
 /**
  * +----------------------------------------------------------------------
- * | WebBase CMS Component
+ * | WebBase Admin Component
  * +----------------------------------------------------------------------
  * | Copyright (c) 2026 WebBase contributors
  * +----------------------------------------------------------------------
@@ -17,7 +17,6 @@ declare(strict_types=1);
 use app\admin\Service;
 use WebBase\Core\extend\PhinxExtend;
 use WebBase\Core\model\SystemConfig;
-use WebBase\Core\model\SystemUser;
 use think\migration\Migrator;
 
 @set_time_limit(0);
@@ -26,16 +25,8 @@ use think\migration\Migrator;
 /**
  * 系统模块数据.
  */
-class InstallAdmin20241011 extends Migrator
+final class SeedAdminDefaults extends Migrator
 {
-    /**
-     * 获取脚本名称.
-     */
-    public function getName(): string
-    {
-        return 'AdminPlugin';
-    }
-
     /**
      * 创建数据库.
      */
@@ -52,13 +43,13 @@ class InstallAdmin20241011 extends Migrator
     {
         $modal = SystemConfig::mk()->whereRaw('1=1')->findOrEmpty();
         $modal->isEmpty() && $modal->insertAll([
-            ['type' => 'base', 'name' => 'app_name', 'value' => 'WebBase CMS'],
-            ['type' => 'base', 'name' => 'app_version', 'value' => 'v6'],
+            ['type' => 'base', 'name' => 'app_name', 'value' => 'WebBase Admin'],
+            ['type' => 'base', 'name' => 'app_version', 'value' => '0.5'],
             ['type' => 'base', 'name' => 'editor', 'value' => 'wangEditor'],
             ['type' => 'base', 'name' => 'login_name', 'value' => '系统管理'],
-            ['type' => 'base', 'name' => 'site_copy', 'value' => '©版权所有 2014-' . date('Y') . ' WebBase CMS'],
+            ['type' => 'base', 'name' => 'site_copy', 'value' => '©版权所有 2014-' . date('Y') . ' WebBase Admin'],
             ['type' => 'base', 'name' => 'site_icon', 'value' => ''],
-            ['type' => 'base', 'name' => 'site_name', 'value' => 'WebBase CMS'],
+            ['type' => 'base', 'name' => 'site_name', 'value' => 'WebBase Admin'],
             ['type' => 'base', 'name' => 'site_theme', 'value' => 'default'],
             ['type' => 'storage', 'name' => 'allow_exts', 'value' => 'pdf,doc,docx,gif,ico,jpg,jpeg,webp,mp3,mp4,png,zip,rar,xls,xlsx'],
             ['type' => 'storage', 'name' => 'type', 'value' => 'local'],

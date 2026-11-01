@@ -43,6 +43,34 @@ switch ($input['action']) {
     case 'set-config':
         $result = sysconf($input['key'], $input['value']);
         break;
+    case 'model-lifecycle':
+        $model = new class extends \WebBase\Core\BaseModel {
+            protected $name = 'AuditProbe';
+        };
+        $row = $model->create(['title' => 'model audit probe']);
+        $id = $row->getAttr('id');
+        $check = static function (bool $valid, string $message): void {
+            if (!$valid) {
+                throw new RuntimeException($message);
+            }
+        };
+        $check($id > 0 && (bool)$row->getData('created_at') && (bool)$row->getData('updated_at'), 'Model insert did not populate audit fields.');
+        $model->where('id', $id)->update(['created_at' => '2000-01-01 00:00:00', 'updated_at' => '2000-01-01 00:00:00']);
+        $row = $model->where('id', $id)->find();
+        $row->save(['title' => 'changed title']);
+        $row = $model->where('id', $id)->find();
+        $check($row->getData('created_at') === '2000-01-01 00:00:00' && $row->getData('updated_at') > '2000-01-01 00:00:00', 'Model update did not preserve creation time and advance update time.');
+        $row->delete();
+        $check($model->where('id', $id)->find() === null, 'Deleted row leaked into normal queries.');
+        $trashed = $model->onlyTrashed()->where('id', $id)->find();
+        $check($trashed !== null && (bool)$trashed->getData('deleted_at'), 'Soft delete did not write deleted_at.');
+        $trashed->restore();
+        $row = $model->where('id', $id)->find();
+        $check($row !== null && $row->getData('deleted_at') === null, 'Restore did not clear deleted_at to NULL.');
+        $row->force()->delete();
+        $check($model->withTrashed()->where('id', $id)->find() === null, 'Force delete did not remove the row.');
+        $result = true;
+        break;
     default:
         throw new InvalidArgumentException('Unknown test action.');
 }

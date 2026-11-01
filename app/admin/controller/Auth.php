@@ -46,7 +46,7 @@ class Auth extends Controller
         SystemAuth::mQuery()->layTable(function () {
             $this->title = '系统权限管理';
         }, static function (QueryHelper $query) {
-            $query->like('title,desc')->equal('status,utype')->dateBetween('create_at');
+            $query->like('title,desc')->equal('status,utype')->dateBetween('created_at');
         });
     }
 

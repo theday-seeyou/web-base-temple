@@ -53,7 +53,7 @@
                 {field: 'name', title: '{:lang("数据名称")}', width: '30%', align: 'left'},
                 {field: 'status', title: '{:lang("数据状态")}', minWidth: 110, align: 'center'{if isset($scope) and $scope eq 'index'}, templet: '#StatusSwitchTpl'{/if}},
                 {if isset($scope) and $scope eq 'recycle'}{field: 'deleted_at', title: '删除时间', minWidth: 170, align: 'center', sort: true},{/if}
-                {field: 'create_at', title: '{:lang("创建时间")}', minWidth: 170, align: 'center', sort: true},
+                {field: 'created_at', title: '{:lang("创建时间")}', minWidth: 170, align: 'center', sort: true},
                 {toolbar: '#toolbar', align: 'center', minWidth: 150, title: '{:lang("数据操作")}', fixed: 'right'},
             ]]
         });

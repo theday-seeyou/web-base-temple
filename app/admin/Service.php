@@ -27,6 +27,10 @@ class Service extends Plugin
 {
     public function boot(): void
     {
+        // Bind after all services boot, so ThinkPHP's migration service cannot replace it.
+        \think\Console::starting(function (): void {
+            $this->app->bind('migration.creator', \WebBase\Core\migration\Creator::class);
+        });
         $this->commands([\app\admin\command\InitAdmin::class]);
     }
     /**

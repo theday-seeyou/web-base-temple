@@ -1,6 +1,6 @@
-# 安装、安全升级与部署
+# 安装、安全与部署
 
-本说明对应 Starter 0.4，配套 Core ^0.4，包含 PasswordService、CsrfService 和 UploadPolicy。新项目从 README 的 composer create-project 命令开始；已有项目必须同时升级应用代码、正式依赖和数据库迁移，不能把 0.4 应用文件单独复制到 Core 0.3 上运行。验证脚本 tests/prepare_fixture.py 默认安装锁文件中的正式依赖；仅显式指定 WEBBASE_CORE_SOURCE 时使用本地源码联调。
+本说明对应 Starter 0.5，配套 Core ^0.5，仅支持全新安装。包含 PasswordService、CsrfService、UploadPolicy 和标准建表基类。新项目从 README 的 composer create-project 命令开始。验证脚本 tests/prepare_fixture.py 默认安装锁文件中的正式依赖；仅显式指定 WEBBASE_CORE_SOURCE 时使用本地源码联调。
 
 ## 本地环境与 phpStudy
 
@@ -17,13 +17,17 @@ php think run -H 127.0.0.1 -p 8000
 
 admin:init 只在没有任何用户（含回收站用户）的空库中创建配置指定的超级管理员，默认账号 admin、ID 10000。密码以隐藏方式输入，至少 12 字节、最多 72 字节。自动化部署可通过进程环境 WEBBASE_ADMIN_PASSWORD 提供密码，执行后立即从环境移除，不要把密码写进命令参数、仓库或部署日志。命令不会重置已有用户。
 
-## 已有数据库升级
+## 全新安装的数据约定
 
-先备份数据库、.env 和上传文件，再安装配套依赖、执行 migrate:run 并清理应用缓存。升级密码列至 varchar(255)，不改写现有密码。MD5 账号第一次成功登录时升级为 bcrypt；旧会话统一重新登录。原有短密码仍可用于这次登录，升级后应通过安全设置改成长密码。
+密码只接受 bcrypt 散列，字段为 varchar(255)。MD5 散列无法登录，也没有登录时升级旧密码的分支。账号通过 admin:init、后台新增或重置密码创建；新密码和登录校验均遵循 12–72 字节规则。
+
+默认应用表统一使用自增主键 id，以及 DATETIME 类型的 created_at、updated_at、deleted_at。前两个字段非空并自动记录时间，deleted_at 默认为 NULL。软删除只有 deleted_at 一个字段，恢复时设回 NULL，不检测或转换旧删除标记，不保留旧创建/更新时间别名。
+
+安装迁移已重建为干净基线，只用于独立空数据库。遇到同名应用表会在创建应用表之前拒绝执行，不自动修改旧表。0.4 及更早版本的迁移脚本仍保存在对应 Git 标签中；它们不作为本版本的历史数据兼容路径。
 
 密码变更事件 PluginAdminChangePassword 只发送 uuid，不再发送明文 pass；依赖该字段的插件必须修改。账号禁用、删除和密码变化会在下一次请求使旧登录失效，权限节点在每次后台请求时重新加载。
 
-默认编辑器统一为 wangEditor。新库允许 PDF/DOCX/XLSX 等常见资料类型；升级只替换完全等于旧默认值的配置，保留自定义配置。若要继续使用 CKEditor，可在升级后显式选择。升级前记录原设置。
+默认编辑器为 wangEditor，允许 PDF/DOCX/XLSX 等常见资料类型。需要使用其他已支持的编辑器时，可在后台显式选择。
 
 ## 请求与上传约定
 

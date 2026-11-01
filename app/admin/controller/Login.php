@@ -70,7 +70,6 @@ class Login extends Controller
                 'username.require' => '登录账号不能为空!',
                 'username.min:4' => '账号不能少于4位字符!',
                 'password.require' => '登录密码不能为空!',
-                'password.min:4' => '密码不能少于4位字符!',
                 'verify.require' => '图形验证码不能为空!',
                 'uniqid.require' => '图形验证标识不能为空!',
             ], PasswordService::input($this->request));
@@ -98,7 +97,7 @@ class Login extends Controller
                 $this->error('登录账号或密码错误，请重新输入!');
             }
             if (PasswordService::needsRehash((string)$user['password'])) {
-                $user->save(['password' => PasswordService::upgrade($data['password'])]);
+                $user->save(['password' => PasswordService::hash($data['password'])]);
             }
             $this->app->session->regenerate(true);
             $this->app->session->delete('_csrf');

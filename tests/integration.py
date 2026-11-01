@@ -95,17 +95,27 @@ assert ret['code']==0 and 'POST' in ret['info'],ret
 name='test_'+uuid.uuid4().hex[:10]
 c.post('/admin/category/add',{'pid':0,'title':name,'sort':0})
 parent=sql('SELECT id FROM category WHERE title=?',[name])[0]['id']
+created=sql('SELECT created_at,updated_at,deleted_at FROM category WHERE id=?',[parent])[0]
+assert created['created_at'] and created['updated_at'] and created['deleted_at'] is None,created
+sql('UPDATE category SET updated_at=? WHERE id=?',['2000-01-01 00:00:00',parent],True)
 c.post('/admin/category/add',{'pid':parent,'title':name+'_child','sort':0})
 child=sql('SELECT id FROM category WHERE title=?',[name+'_child'])[0]['id']
 c.post('/admin/category/edit',{'id':parent,'pid':child,'title':name,'sort':0},0)
 c.post('/admin/category/remove',{'id':parent},0)
 c.post('/admin/category/edit',{'id':parent,'pid':0,'title':name+'_edited','sort':5})
+edited=sql('SELECT created_at,updated_at FROM category WHERE id=?',[parent])[0]
+assert edited['created_at']==created['created_at'] and edited['updated_at']>'2000-01-01 00:00:00',edited
 c.post('/admin/category/state',{'id':parent,'status':0})
 c.post('/admin/category/state',{'status':1},0)
 c.post('/admin/category/add',{'id':parent,'pid':0,'title':'must-not-edit'},0)
 c.post('/admin/category/edit',{'id':999999999,'pid':0,'title':'must-not-create'},0)
 c.post('/admin/category/remove',{'id':child})
 c.post('/admin/category/remove',{'id':parent})
+assert sql('SELECT deleted_at FROM category WHERE id=?',[parent])[0]['deleted_at'] is not None
+_,live,_=c.request('/admin/category/index?output=layui.table&type=index')
+_,recycled,_=c.request('/admin/category/index?output=layui.table&type=recycle')
+assert all(row['id']!=parent for row in live['data']),live
+assert any(row['id']==parent and row['deleted_at'] for row in recycled['data']),recycled
 c.post('/admin/category/restore',{'id':child},0)
 c.post('/admin/category/restore',{'id':parent})
 c.post('/admin/category/restore',{'id':child})
@@ -138,29 +148,34 @@ assert bad['code']==0,bad
 c.post('/admin/api.upload/state',{'key':'test/too-big.pdf','size':52428801,'name':'large.pdf','hash':'test','xext':'pdf','uptype':'local'},0)
 print('PASS: real PDF upload/save/reload/download, disguised file and oversized upload rejected')
 
-# Legacy MD5 login and modern password change invalidate old sessions.
+# Historical hashes are rejected; modern password changes invalidate old sessions.
 legacy='legacy_'+uuid.uuid4().hex[:8]
-sql('INSERT INTO system_user (username,nickname,password,status) VALUES (?,?,?,1)',[legacy,'Legacy test',hashlib.md5(b'legacy-password').hexdigest()],True)
-legacyClient=Client();legacyClient.login(legacy,'legacy-password')
-assert sql('SELECT password FROM system_user WHERE username=?',[legacy])[0]['password'].startswith('$2y$')
+legacyHash=hashlib.md5(b'Legacy password rejected!').hexdigest()
+sql('INSERT INTO system_user (username,nickname,password,status) VALUES (?,?,?,1)',[legacy,'Rejected hash test',legacyHash],True)
+rejected=Client(); rejected.page()
+_,challenge,_=rejected.request('/admin/login/captcha',{'type':'LoginCaptcha','token':'test'})
+answer=state('captcha',session=rejected.sid())
+rejected.post('/admin/login/index',{'username':legacy,'password':'Legacy password rejected!','verify':answer,'uniqid':challenge['data']['uniqid']},0)
+assert not state('session',session=rejected.sid()).get('user')
+assert sql('SELECT password FROM system_user WHERE username=?',[legacy])[0]['password']==legacyHash
 role='role_'+uuid.uuid4().hex[:8]
 sql('INSERT INTO system_auth (title,status) VALUES (?,1)',[role],True)
 roleId=sql('SELECT id FROM system_auth WHERE title=?',[role])[0]['id']
-sql('UPDATE system_user SET authorize=? WHERE username=?',[str(roleId),legacy],True)
-sql('INSERT INTO system_auth_node (auth,node) VALUES (?,?)',[roleId,'admin/category/index'],True)
-_,allowed,_=legacyClient.request('/admin/category/index')
-assert isinstance(allowed,str) and 'CategoryTable' in allowed
-sql('DELETE FROM system_auth_node WHERE auth=?',[roleId],True)
-_,denied,_=legacyClient.request('/admin/category/index')
-assert isinstance(denied,dict) and denied['code']==0,denied
 newUser='new_'+uuid.uuid4().hex[:8]
 c.post('/admin/user/add',{'username':newUser,'nickname':'New user test','password':PASSWORD,'authorize':str(roleId)})
 assert sql('SELECT password FROM system_user WHERE username=?',[newUser])[0]['password'].startswith('$2y$')
+roleClient=Client(); roleClient.login(newUser)
+sql('INSERT INTO system_auth_node (auth,node) VALUES (?,?)',[roleId,'admin/category/index'],True)
+_,allowed,_=roleClient.request('/admin/category/index')
+assert isinstance(allowed,str) and 'CategoryTable' in allowed
+sql('DELETE FROM system_auth_node WHERE auth=?',[roleId],True)
+_,denied,_=roleClient.request('/admin/category/index')
+assert isinstance(denied,dict) and denied['code']==0,denied
 uid=sql('SELECT id FROM system_user WHERE username=?',[newUser])[0]['id']
 c.post('/admin/user/pass',{'id':uid,'password':'Reset integration password!','repassword':'Reset integration password!'})
 Client().login(newUser,'Reset integration password!')
-sql('UPDATE system_user SET status=0 WHERE username=?',[legacy],True)
-_,ret,_=legacyClient.request('/admin/index/pass?id=10000')
+sql('UPDATE system_user SET status=0 WHERE username=?',[newUser],True)
+_,ret,_=roleClient.request('/admin/index/pass?id=10000')
 assert isinstance(ret,dict) and ret['code']==0,ret
 admin2=Client();admin2.login()
 c.post('/admin/index/pass',{'id':10000,'oldpassword':PASSWORD,'password':'New integration password 2026!','repassword':'New integration password 2026!'})
@@ -168,5 +183,5 @@ _,ret,_=admin2.request('/admin/category/index')
 assert isinstance(ret,dict) and ret['code']==0,ret
 c.login(password='New integration password 2026!')
 c.post('/admin/index/pass',{'id':10000,'oldpassword':'New integration password 2026!','password':PASSWORD,'repassword':PASSWORD})
-print('PASS: account creation/reset, legacy MD5 rehash, permission refresh, disabled-account and changed-password session invalidation')
+print('PASS: account creation/reset, MD5 rejection, permission refresh, disabled-account and changed-password session invalidation')
 print('HTTP integration completed successfully.')

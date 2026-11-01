@@ -18,7 +18,7 @@ WebBase Starter 是基于 ThinkPHP 8 和自有 Composer 核心包
 推荐直接使用 Composer 创建独立站点：
 
 ```bash
-composer create-project theday-seeyou/web-base-temple my-admin-project "^0.4"
+composer create-project theday-seeyou/web-base-temple my-admin-project "^0.5"
 cd my-admin-project
 ```
 
@@ -76,8 +76,42 @@ php think run -H 127.0.0.1 -p 8000
 
 密码须为 12–72 字节。已有账号不会被初始化命令覆盖。若 8000 端口已被占用，可将 `-p 8000` 改为其他端口。
 
-0.4 系列使用配套的 Core 0.4 和 bcrypt 密码散列。已有 0.3 项目升级时，请先阅读
-[安装、安全升级与部署](docs/installation-security.md)，同时更新应用代码、核心依赖和数据库迁移。
+0.5 系列使用配套的 Core 0.5，仅面向全新安装。密码使用 bcrypt，不支持 MD5 账号，
+不转换旧数据库的删除标记或时间字段。请使用独立空数据库初始化，详见
+[安装、安全与部署](docs/installation-security.md)。
+
+## 默认表结构与模型
+
+所有默认应用表以及通过 `createTable()` 创建的新表都包含以下字段：
+
+| 字段 | 数据库类型 | 含义与默认行为 |
+| --- | --- | --- |
+| `id` | `BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY` | 自增主键 |
+| `created_at` | `DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP` | 创建时间，新增记录时写入 |
+| `updated_at` | `DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` | 更新时间，更新记录时写入 |
+| `deleted_at` | `DATETIME NULL DEFAULT NULL` | 删除时间，NULL 表示未删除 |
+
+`BaseModel` 默认开启自动时间写入和软删除；普通查询排除已删除数据，回收站查询只返回
+`deleted_at IS NOT NULL` 的记录，恢复时将该字段设回 `NULL`。`Model` 提供相同的创建、
+更新时间约定，供需要物理删除的基础设施模型显式使用。迁移工具自身的 `migrations`
+记录表由 Phinx 管理，不属于应用表。
+
+创建迁移文件：
+
+```bash
+php think migrate:create CreateArticles
+```
+
+默认生成的迁移继承 `WebBase\Core\migration\Migrator`。在 `change()` 中只需定义业务字段：
+
+```php
+$this->createTable('articles')
+    ->addColumn('title', 'string', ['limit' => 200])
+    ->create();
+```
+
+`createTable()` 自动添加上述四个系统字段和删除时间索引。调整现有表时使用
+`$this->table('articles')->...->update()`；数据库变更仍需显式执行 `php think migrate:run`。
 
 ## 从 GitHub 开发
 
