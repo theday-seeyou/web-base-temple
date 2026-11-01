@@ -1,15 +1,22 @@
 {extend name='table'}
 
 {block name="button"}
-<!--{if auth("distinct")}-->
-<a data-table-id="FileTable" data-load='{:url("distinct")}' class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('清理重复')}</a>
-<!--{/if}-->
-<!--{if auth("remove")}-->
-<a data-confirm="{:lang('确定删除这些记录吗？')}" data-table-id="FileTable" data-action='{:url("remove")}' data-rule="id#{id}" class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('批量删除')}</a>
-<!--{/if}-->
+{if $scope eq 'index'}
+<!--{if auth("distinct")}--><button data-table-id="FileTable" data-action='{:url("distinct")}' class="layui-btn layui-btn-sm layui-btn-primary">清理重复</button><!--{/if}-->
+<!--{if auth("remove")}--><button data-action='{:url("remove")}' data-rule="id#{id}" data-table-id="FileTable" data-confirm="确定将选中记录移入回收站吗？" class="layui-btn layui-btn-sm layui-btn-danger">移入回收站</button><!--{/if}-->
+{else}
+<!--{if auth("restore")}--><button data-action='{:url("restore")}' data-rule="id#{id}" data-table-id="FileTable" data-confirm="确定恢复选中记录吗？" class="layui-btn layui-btn-sm layui-btn-primary">恢复记录</button><!--{/if}-->
+<!--{if auth("destroy")}--><button data-action='{:url("destroy")}' data-rule="id#{id}" data-table-id="FileTable" data-confirm="永久删除后无法恢复，确定继续吗？" class="layui-btn layui-btn-sm layui-btn-danger">永久删除</button><!--{/if}-->
+{/if}
 {/block}
 
 {block name="content"}
+<div class="layui-tab layui-tab-card">
+    <ul class="layui-tab-title">
+        <li class="{if $scope eq 'index'}layui-this{/if}" data-open="{:url('index')}?scope=index">正常记录</li>
+        <li class="{if $scope eq 'recycle'}layui-this{/if}" data-open="{:url('index')}?scope=recycle">回 收 站</li>
+    </ul>
+</div>
 <div class="think-box-shadow">
     {include file='file/index_search'}
     <table id="FileTable" data-url="{:sysuri('index')}" data-target-search="form.form-search"></table>
@@ -18,6 +25,7 @@
     $(function () {
         $('#FileTable').layTable({
             even: true, height: 'full',
+            where: {scope: '{$scope}'},
             sort: {field: 'id', type: 'desc'},
             cols: [[
                 {checkbox: true, fixed: true},
@@ -47,18 +55,20 @@
                 },
                 {field: 'ctype', title: '{:lang("存储方式")}', align: 'center', width: '10%'},
                 {field: 'created_at', title: '{:lang("创建时间")}', align: 'center', width: '15%', sort: true},
-                {toolbar: '#toolbar', title: '{:lang("操作面板")}', align: 'center', minWidth: 150, fixed: 'right'}
+                {if $scope eq 'recycle'}{field: 'deleted_at', title: '删除时间', minWidth: 170, align: 'center'},{/if}
+                {toolbar: '#toolbar', title: '{:lang("操作面板")}', align: 'center', width: 210, fixed: 'right'}
             ]]
         });
     });
 </script>
 
 <script type="text/html" id="toolbar">
-    <!--{if auth("edit")}-->
-    <a class="layui-btn layui-btn-sm" data-modal="{:url('edit')}?id={{d.id}}" data-title="编辑文件信息">{:lang("编 辑")}</a>
-    <!--{/if}-->
-    <!--{if auth("remove")}-->
-    <a class="layui-btn layui-btn-sm layui-btn-danger" data-action="{:url('remove')}" data-value="id#{{d.id}}">{:lang("删 除")}</a>
-    <!--{/if}-->
+    {if $scope eq 'index'}
+    <!--{if auth('edit')}--><a class="layui-btn layui-btn-sm" data-modal="{:url('edit')}?id={{d.id}}" data-title="编辑文件信息">编辑</a><!--{/if}-->
+    <!--{if auth('remove')}--><a class="layui-btn layui-btn-sm layui-btn-danger" data-action="{:url('remove')}" data-value="id#{{d.id}}" data-confirm="确定将文件记录移入回收站吗？">删除</a><!--{/if}-->
+    {else}
+    <!--{if auth('restore')}--><a class="layui-btn layui-btn-sm layui-btn-primary" data-action="{:url('restore')}" data-value="id#{{d.id}}">恢复</a><!--{/if}-->
+    <!--{if auth('destroy')}--><a class="layui-btn layui-btn-sm layui-btn-danger" data-action="{:url('destroy')}" data-value="id#{{d.id}}" data-confirm="永久删除文件记录后无法恢复，确定继续吗？">永久删除</a><!--{/if}-->
+    {/if}
 </script>
 {/block}

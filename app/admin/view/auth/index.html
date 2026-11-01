@@ -1,16 +1,22 @@
 {extend name='table'}
 
 {block name="button"}
-<!--{if auth("add")}-->
-<button data-open='{:url("add")}' data-table-id="RoleTable" class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('添加权限')}</button>
-<!--{/if}-->
-
-<!--{if auth("remove")}-->
-<button data-action='{:url("remove")}' data-rule="id#{id}" data-table-id="RoleTable" data-confirm="{:lang('确定要批量删除权限吗？')}" class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('批量删除')}</button>
-<!--{/if}-->
+{if $type eq 'index'}
+<!--{if auth("add")}--><button data-open='{:url("add")}' data-table-id="RoleTable" class="layui-btn layui-btn-sm layui-btn-primary">{:lang('添加权限')}</button><!--{/if}-->
+<!--{if auth("remove")}--><button data-action='{:url("remove")}' data-rule="id#{id}" data-table-id="RoleTable" data-confirm="确定将选中记录移入回收站吗？" class="layui-btn layui-btn-sm layui-btn-danger">移入回收站</button><!--{/if}-->
+{else}
+<!--{if auth("restore")}--><button data-action='{:url("restore")}' data-rule="id#{id}" data-table-id="RoleTable" data-confirm="确定恢复选中记录吗？" class="layui-btn layui-btn-sm layui-btn-primary">恢复记录</button><!--{/if}-->
+<!--{if auth("destroy")}--><button data-action='{:url("destroy")}' data-rule="id#{id}" data-table-id="RoleTable" data-confirm="永久删除后无法恢复，确定继续吗？" class="layui-btn layui-btn-sm layui-btn-danger">永久删除</button><!--{/if}-->
+{/if}
 {/block}
 
 {block name="content"}
+<div class="layui-tab layui-tab-card">
+    <ul class="layui-tab-title">
+        <li class="{if $type eq 'index'}layui-this{/if}" data-open="{:url('index')}?type=index">正常记录</li>
+        <li class="{if $type eq 'recycle'}layui-this{/if}" data-open="{:url('index')}?type=recycle">回 收 站</li>
+    </ul>
+</div>
 <div class="think-box-shadow">
     {include file='auth/index_search'}
     <table id="RoleTable" data-url="{:request()->url()}" data-target-search="form.form-search"></table>
@@ -23,14 +29,16 @@
         // 初始化表格组件
         $('#RoleTable').layTable({
             even: true, height: 'full',
+            where: {type: '{$type}'},
             sort: {field: 'sort desc,id', type: 'desc'},
             cols: [[
                 {checkbox: true, fixed: true},
-                {field: 'sort', title: '{:lang("排序权重")}', align: 'center', width: 100, sort: true, templet: '#SortInputRoleTableTpl'},
+                {field: 'sort', title: '{:lang("排序权重")}', align: 'center', width: 100, sort: true, {if $type eq 'index'}templet: '#SortInputRoleTableTpl'{/if}},
                 {field: 'title', title: '{:lang("权限名称")}', align: 'center', minWidth: 140},
                 {field: 'desc', title: '{:lang("权限描述")}', align: 'center', minWidth: 110, templet: '<div>{{d.desc||"-"}}</div>'},
-                {field: 'status', title: '{:lang("使用状态")}', align: 'center', minWidth: 110, templet: '#StatusSwitchRoleTableTpl'},
+                {if $type eq 'index'}{field: 'status', title: '{:lang("使用状态")}', align: 'center', minWidth: 110, templet: '#StatusSwitchRoleTableTpl'},{/if}
                 {field: 'created_at', title: '{:lang("创建时间")}', align: 'center', minWidth: 170, sort: true},
+                {if $type eq 'recycle'}{field: 'deleted_at', title: '删除时间', minWidth: 170, align: 'center'},{/if}
                 {toolbar: '#ToolbarRoleTableTpl', title: '{:lang("操作面板")}', align: 'center', minWidth: 210, fixed: 'right'},
             ]]
         });
@@ -65,12 +73,12 @@
 
 <!-- 数据操作工具条模板 -->
 <script type="text/html" id="ToolbarRoleTableTpl">
-    <!--{if auth('edit')}-->
-    <a class="layui-btn layui-btn-primary layui-btn-sm" data-open='{:url("edit")}?id={{d.id}}'>{:lang("编 辑")}</a>
-    <!--{/if}-->
-
-    <!--{if auth("remove")}-->
-    <a class="layui-btn layui-btn-danger layui-btn-sm" data-action="{:url('remove')}" data-value="id#{{d.id}}" data-confirm="{:lang('确定要删除权限吗?')}">{:lang("删 除")}</a>
-    <!--{/if}-->
+    {if $type eq 'index'}
+    <!--{if auth('edit')}--><a class="layui-btn layui-btn-primary layui-btn-sm" data-open='{:url("edit")}?id={{d.id}}'>编辑</a><!--{/if}-->
+    <!--{if auth('remove')}--><a class="layui-btn layui-btn-danger layui-btn-sm" data-action="{:url('remove')}" data-value="id#{{d.id}}" data-confirm="确定将角色移入回收站吗？">删除</a><!--{/if}-->
+    {else}
+    <!--{if auth('restore')}--><a class="layui-btn layui-btn-primary layui-btn-sm" data-action="{:url('restore')}" data-value="id#{{d.id}}">恢复</a><!--{/if}-->
+    <!--{if auth('destroy')}--><a class="layui-btn layui-btn-danger layui-btn-sm" data-action="{:url('destroy')}" data-value="id#{{d.id}}" data-confirm="永久删除角色及其授权节点，确定继续吗？">永久删除</a><!--{/if}-->
+    {/if}
 </script>
 {/block}

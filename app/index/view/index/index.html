@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="{$htmlLocale}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{:lang('website_title')}</title>
+    <meta name="description" content="{:lang('website_description')}">
+    <link rel="stylesheet" href="/static/site/index.css">
+</head>
+<body>
+    <a class="skip-link" href="#main">{:lang('website_skip')}</a>
+    <div class="page">
+        <header class="header">
+            <a class="brand" href="?lang={$locale}" aria-label="WebBase"><span class="brand-mark" aria-hidden="true">W</span>WebBase<span class="brand-dot" aria-hidden="true">.</span></a>
+            <nav aria-label="{:lang('website_navigation')}">
+                <div class="languages" aria-label="{:lang('website_language')}">
+                    <a href="?lang=zh-cn" lang="zh-CN" hreflang="zh-CN" {if $locale eq 'zh-cn'}aria-current="true"{/if}>中文</a>
+                    <a href="?lang=en-us" lang="en-US" hreflang="en-US" {if $locale eq 'en-us'}aria-current="true"{/if}>English</a>
+                </div>
+            </nav>
+        </header>
+        <main id="main" class="main">
+            <div class="welcome-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <p class="eyebrow">{:lang('website_eyebrow')}</p>
+            <h1>{:lang('website_heading')}</h1>
+            <p class="intro">{:lang('website_intro')}</p>
+            <a class="admin-link" href="{$adminUrl}">{:lang('website_admin')}<span aria-hidden="true">↗</span></a>
+        </main>
+        <footer class="footer"><span>© {$year} WebBase</span><span>{:lang('website_footer')}</span></footer>
+    </div>
+</body>
+</html>

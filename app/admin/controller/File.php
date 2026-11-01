@@ -48,12 +48,14 @@ class File extends Controller
      */
     public function index()
     {
-        SystemFile::mQuery()->layTable(function () {
+        $this->scope = input('scope', 'index');
+        $query = $this->scope === 'recycle' ? SystemFile::mRecycleQuery() : SystemFile::mQuery();
+        $query->layTable(function () {
             $this->title = '系统文件管理';
             $this->xexts = SystemFile::mk()->distinct()->column('xext');
-        }, static function (QueryHelper $query) {
+        }, function (QueryHelper $query) {
             $query->like('name,hash,xext')->equal('type')->dateBetween('created_at');
-            $query->where(['issafe' => 0, 'status' => 2, 'uuid' => AdminService::getUserId()]);
+            $query->where(['issafe' => 0, 'status' => 2])->where($this->ownerWhere());
         });
     }
 
@@ -63,7 +65,7 @@ class File extends Controller
      */
     public function edit()
     {
-        SystemFile::mForm('form');
+        SystemFile::mForm('form', 'id', $this->ownerWhere());
     }
 
     /**
@@ -72,10 +74,37 @@ class File extends Controller
      */
     public function remove()
     {
-        if (!AdminService::isSuper()) {
-            $where = ['uuid' => AdminService::getUserId()];
+        SystemFile::mDelete('', $this->ownerWhere());
+    }
+
+    /**
+     * 恢复回收站文件记录.
+     * @auth true
+     */
+    public function restore()
+    {
+        SystemFile::mRestore('', $this->ownerWhere());
+    }
+
+    /**
+     * 永久删除回收站文件记录.
+     * @auth true
+     */
+    public function destroy()
+    {
+        SystemFile::mForceDelete('', $this->ownerWhere());
+    }
+
+    private function ownerWhere(): array
+    {
+        return AdminService::isSuper() ? [] : ['uuid' => AdminService::getUserId()];
+    }
+
+    protected function _form_filter(array &$data)
+    {
+        if ($this->request->isPost()) {
+            $data = array_intersect_key($data, array_flip(['id', 'name', 'tags']));
         }
-        SystemFile::mDelete('', $where ?? []);
     }
 
     /**
@@ -94,7 +123,7 @@ class File extends Controller
         // 使用 whereNotExists 配合派生表子查询删除，避免 1093 错误和 whereIn
         SystemFile::mk()->alias('source')->where($map)->whereNotExists(function ($query) use ($keepSubQuery) {
             $query->table("({$keepSubQuery})")->alias('f2')->whereRaw('f2.id = source.id');
-        })->delete();
+        })->update(['deleted_at' => date('Y-m-d H:i:s')]);
         $this->success('清理重复文件成功！');
     }
 

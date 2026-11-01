@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "25b956bdf6b7058e8cc6696b0468d32f",
+    "content-hash": "194e0051f6fe955eef345f0027bf47e9",
     "packages": [
         {
             "name": "psr/container",
@@ -280,16 +280,16 @@
         },
         {
             "name": "theday-seeyou/web-base-core",
-            "version": "v0.5.0",
+            "version": "v0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/theday-seeyou/web-base-core.git",
-                "reference": "e6e3a499eb0304aafce0a76d089ad3d2ae1762e8"
+                "reference": "5e6a020ff5cbf2f762717ebedd7c0ccadd4c4f0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/theday-seeyou/web-base-core/zipball/e6e3a499eb0304aafce0a76d089ad3d2ae1762e8",
-                "reference": "e6e3a499eb0304aafce0a76d089ad3d2ae1762e8",
+                "url": "https://api.github.com/repos/theday-seeyou/web-base-core/zipball/5e6a020ff5cbf2f762717ebedd7c0ccadd4c4f0b",
+                "reference": "5e6a020ff5cbf2f762717ebedd7c0ccadd4c4f0b",
                 "shasum": ""
             },
             "require": {
@@ -347,7 +347,7 @@
                 "issues": "https://github.com/theday-seeyou/web-base-core/issues",
                 "source": "https://github.com/theday-seeyou/web-base-core"
             },
-            "time": "2026-11-01T00:54:42+00:00"
+            "time": "2026-11-01T01:35:32+00:00"
         },
         {
             "name": "topthink/framework",

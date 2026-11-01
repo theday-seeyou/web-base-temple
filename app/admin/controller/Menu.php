@@ -51,7 +51,8 @@ class Menu extends Controller
         // 查询顶级菜单集合
         $this->menupList = SystemMenu::mk()->where(['pid' => 0, 'status' => 1])->order('sort desc,id asc')->column('id,pid,title', 'id');
 
-        SystemMenu::mQuery()->layTable();
+        $query = $this->type === 'recycle' ? SystemMenu::mRecycleQuery() : SystemMenu::mQuery();
+        $query->layTable();
     }
 
     /**
@@ -96,35 +97,36 @@ class Menu extends Controller
     }
 
     /**
+     * 恢复回收站菜单.
+     * @auth true
+     */
+    public function restore()
+    {
+        SystemMenu::mRestore();
+    }
+
+    /**
+     * 永久删除回收站菜单.
+     * @auth true
+     */
+    public function destroy()
+    {
+        SystemMenu::mForceDelete();
+    }
+
+    /**
      * 列表数据处理.
      */
     protected function _index_page_filter(array &$data)
     {
-        $data = DataExtend::arr2tree($data);
-        // 回收站过滤有效菜单
         if ($this->type === 'recycle') {
-            foreach ($data as $k1 => &$p1) {
-                if (!empty($p1['sub'])) {
-                    foreach ($p1['sub'] as $k2 => &$p2) {
-                        if (!empty($p2['sub'])) {
-                            foreach ($p2['sub'] as $k3 => $p3) {
-                                if ($p3['status'] > 0) {
-                                    unset($p2['sub'][$k3]);
-                                }
-                            }
-                        }
-                        if (empty($p2['sub']) && ($p2['url'] === '#' or $p2['status'] > 0)) {
-                            unset($p1['sub'][$k2]);
-                        }
-                    }
-                }
-                if (empty($p1['sub']) && ($p1['url'] === '#' or $p1['status'] > 0)) {
-                    unset($data[$k1]);
-                }
+            foreach ($data as &$row) {
+                $row['spl'] = '';
             }
+            unset($row);
+        } else {
+            $data = DataExtend::arr2table(DataExtend::arr2tree($data));
         }
-        // 菜单数据树数据变平化
-        $data = DataExtend::arr2table($data);
 
         // 过滤非当前顶级菜单的下级菜单,并重新索引数组
         if ($this->type === 'index' && $this->pid) {
@@ -145,6 +147,41 @@ class Menu extends Controller
      */
     protected function _form_filter(array &$vo)
     {
+        if ($this->request->isPost()) {
+            $vo = array_intersect_key($vo, array_flip(['id', 'pid', 'title', 'icon', 'node', 'url', 'params', 'target', 'sort', 'status']));
+            $id = (int)($vo['id'] ?? 0);
+            $pid = (int)($vo['pid'] ?? 0);
+            $vo['pid'] = $pid;
+            if (trim((string)($vo['title'] ?? '')) === '' || mb_strlen((string)$vo['title']) > 100 || $pid < 0) {
+                $this->error('菜单名称或上级菜单不合法。');
+            }
+            $rows = SystemMenu::mk()->column('pid', 'id');
+            $seen = [];
+            $depth = 1;
+            for ($parent = $pid; $parent > 0; $parent = (int)$rows[$parent]) {
+                if ($parent === $id || isset($seen[$parent]) || !array_key_exists($parent, $rows)) {
+                    $this->error('上级菜单不存在或存在循环关系。');
+                }
+                $seen[$parent] = true;
+                if (++$depth > 3) {
+                    $this->error('菜单最多支持三级。');
+                }
+            }
+            $frontier = $id > 0 ? [$id] : [];
+            while ($frontier !== []) {
+                $children = [];
+                foreach ($rows as $child => $parent) {
+                    if (in_array((int)$parent, $frontier, true)) {
+                        $children[] = (int)$child;
+                    }
+                }
+                if ($children !== [] && ++$depth > 3) {
+                    $this->error('移动后子菜单将超过三级。');
+                }
+                $frontier = $children;
+            }
+            return;
+        }
         if ($this->request->isGet()) {
             $debug = $this->app->isDebug();
             /* 清理权限节点 */
@@ -160,7 +197,7 @@ class Menu extends Controller
             /* 选择自己上级菜单 */
             $vo['pid'] = $vo['pid'] ?? input('pid', '0');
             /* 列出可选上级菜单 */
-            $menus = SystemMenu::mk()->order('sort desc,id asc')->column('id,pid,icon,url,node,title,params', 'id');
+            $menus = SystemMenu::mk()->order('sort desc,id asc')->column('id,pid,icon,url,node,title,params,target,sort,status', 'id');
             $this->menus = DataExtend::arr2table(array_merge($menus, [['id' => '0', 'pid' => '-1', 'url' => '#', 'title' => '顶部菜单']]));
             if (isset($vo['id'])) {
                 foreach ($this->menus as $menu) {
@@ -181,6 +218,32 @@ class Menu extends Controller
                     }
                 }
             }
+        }
+    }
+
+    protected function _delete_filter($query)
+    {
+        $ids = (clone $query)->column('id');
+        if ($ids && SystemMenu::mk()->whereIn('pid', $ids)->whereNotIn('id', $ids)->count()) {
+            $this->error('请先删除子菜单，或同时选择完整子树。');
+        }
+    }
+
+    protected function _restore_filter($query)
+    {
+        $rows = (clone $query)->whereNotNull('deleted_at')->column('pid', 'id');
+        foreach ($rows as $pid) {
+            if ((int)$pid > 0 && !array_key_exists($pid, $rows) && !SystemMenu::mk()->where('id', $pid)->count()) {
+                $this->error('请先恢复上级菜单。');
+            }
+        }
+    }
+
+    protected function _force_delete_filter($query)
+    {
+        $ids = (clone $query)->whereNotNull('deleted_at')->column('id');
+        if ($ids && SystemMenu::mk()->withTrashed()->whereIn('pid', $ids)->whereNotIn('id', $ids)->count()) {
+            $this->error('请先永久删除子菜单，或同时选择完整子树。');
         }
     }
 }

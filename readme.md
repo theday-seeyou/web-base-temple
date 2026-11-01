@@ -113,6 +113,28 @@ $this->createTable('articles')
 `createTable()` 自动添加上述四个系统字段和删除时间索引。调整现有表时使用
 `$this->table('articles')->...->update()`；数据库变更仍需显式执行 `php think migrate:run`。
 
+后台用户、角色、菜单、数据字典、附件记录和分类示例均默认使用软删除，提供正常列表、
+回收站、恢复及永久删除。菜单的禁用状态独立于删除状态；恢复角色会保留其原有授权。
+附件回收和永久删除只处理数据库记录，不删除可能仍被文章引用的实际文件。
+任务、操作日志、配置和内部关联数据按各自的显式维护操作处理，详见
+[后台 CRUD 与回收站](docs/crud-recycle-editor.md)。
+
+## 默认首页与中英文切换
+
+`/` 默认显示一个简单的公开首页，无需登录。可通过页面右上角的“中文 / English”切换：
+
+- 中文：`/?lang=zh-cn`
+- 英文：`/?lang=en-us`
+
+语言选择优先级为 URL 的 `lang` 参数、`site_lang` Cookie、`config/site.php` 中的
+默认语言。Cookie 保存 30 天，刷新或重新打开首页会保留选择；非法语言回到默认中文。
+页面同步切换标题、描述、正文、导航、页脚和 HTML `lang`，响应包含 `Content-Language`。
+网站语言与后台语言独立，后台当前默认中文。
+
+修改首页模板：`app/index/view/index/index.html`；样式：`public/static/site/index.css`；
+中文文案：`app/index/lang/zh-cn.php`；英文文案：`app/index/lang/en-us.php`。
+这仅是起始首页，不包含私有 CMS 的内容翻译、动态模型或模板安装能力。
+
 ## 从 GitHub 开发
 
 需要参与 Starter 开发时，也可以直接克隆：
@@ -168,7 +190,7 @@ Web 服务器的站点根目录必须指向 `public/`。不要把 `.env`、源�
 - 后台登录、权限、菜单、系统配置、文件与日志管理。
 - 通用 CRUD、`deleted_at` 软删除与回收站。
 - 存储、上传、队列和数据库迁移基础设施。
-- ThinkPHP 后台界面多语言能力。
+- 独立的中英文公开首页，后台默认中文。
 - 一个用于演示树形数据、CRUD 和回收站的静态示例模块。
 
 产品级扩展的协议、数据结构、源码和内部设计不在本公开仓库中维护。
@@ -180,6 +202,8 @@ Web 服务器的站点根目录必须指向 `public/`。不要把 `.env`、源�
 - [Composer 发布说明](docs/publishing.md)
 - [安装、安全升级与部署](docs/installation-security.md)
 - [0.4.0 正式安装验收](docs/releases/0.4.0.md)
+- [0.5.0 标准字段与全新安装验收](docs/releases/0.5.0.md)
+- [0.5.1 后台与中英文首页验收](docs/releases/0.5.1.md)
 - [第三方声明](THIRD_PARTY_NOTICES.md)
 
 ## 开源协议

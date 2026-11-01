@@ -46,6 +46,10 @@ jobs:
         working-directory: ${{ runner.temp }}/starter-fixture
       - run: python3 tests/integration.py
         working-directory: ${{ runner.temp }}/starter-fixture
+      - run: python3 tests/backend.py
+        working-directory: ${{ runner.temp }}/starter-fixture
+      - run: python3 tests/website.py
+        working-directory: ${{ runner.temp }}/starter-fixture
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

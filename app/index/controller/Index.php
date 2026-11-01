@@ -20,6 +20,12 @@ class Index extends Controller
 {
     public function index()
     {
-        $this->redirect(sysuri('admin/login/index'));
+        $locale = $this->app->lang->getLangSet();
+        return view('index/index', [
+            'locale' => $locale,
+            'htmlLocale' => $locale === 'en-us' ? 'en-US' : 'zh-CN',
+            'adminUrl' => sysuri('admin/index/index'),
+            'year' => date('Y'),
+        ]);
     }
 }

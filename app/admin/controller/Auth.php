@@ -43,7 +43,9 @@ class Auth extends Controller
      */
     public function index()
     {
-        SystemAuth::mQuery()->layTable(function () {
+        $this->type = input('type', 'index');
+        $query = $this->type === 'recycle' ? SystemAuth::mRecycleQuery() : SystemAuth::mQuery();
+        $query->layTable(function () {
             $this->title = '系统权限管理';
         }, static function (QueryHelper $query) {
             $query->like('title,desc')->equal('status,utype')->dateBetween('created_at');
@@ -69,6 +71,24 @@ class Auth extends Controller
     public function remove()
     {
         SystemAuth::mDelete();
+    }
+
+    /**
+     * 恢复回收站角色.
+     * @auth true
+     */
+    public function restore()
+    {
+        SystemAuth::mRestore();
+    }
+
+    /**
+     * 永久删除回收站角色及其授权节点.
+     * @auth true
+     */
+    public function destroy()
+    {
+        SystemAuth::mForceDelete();
     }
 
     /**

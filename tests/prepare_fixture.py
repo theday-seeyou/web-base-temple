@@ -9,8 +9,8 @@ if os.environ.get('WEBBASE_CORE_SOURCE'):
     core=Path(os.environ['WEBBASE_CORE_SOURCE']).resolve()
     assert (core/'src/service/PasswordService.php').is_file(), 'Use the companion security-fix Core source.'
     manifest=json.loads((target/'composer.json').read_text(encoding='utf-8'))
-    manifest['require']['theday-seeyou/web-base-core']='^0.5'
-    manifest['repositories']=[{'type':'path','url':core.as_posix(),'options':{'symlink':True,'versions':{'theday-seeyou/web-base-core':'0.5.0'}}}]
+    manifest['require']['theday-seeyou/web-base-core']='^0.5.1'
+    manifest['repositories']=[{'type':'path','url':core.as_posix(),'options':{'symlink':True,'versions':{'theday-seeyou/web-base-core':'0.5.1'}}}]
     (target/'composer.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
 config=(target/'.env.example').read_text(encoding='utf-8')
 values={

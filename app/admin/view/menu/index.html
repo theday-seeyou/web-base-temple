@@ -1,17 +1,13 @@
 {extend name='table'}
 
 {block name="button"}
-<!--{if $type eq 'index' and auth("add")}-->
-<button data-modal='{:url("add")}' data-table-id="MenuTable" class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('添加菜单')}</button>
-<!--{/if}-->
-
-<!--{if $type eq 'index' and auth("state")}-->
-<button data-action='{:url("state")}' data-table-id="MenuTable" data-rule="id#{sps};status#0" class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('禁用菜单')}</button>
-<!--{/if}-->
-
-<!--{if $type eq 'recycle' and auth("state")}-->
-<button data-action='{:url("state")}' data-table-id="MenuTable" data-rule="id#{spp};status#1" class='layui-btn layui-btn-sm layui-btn-primary'>{:lang('激活菜单')}</button>
-<!--{/if}-->
+{if $type eq 'index'}
+<!--{if auth("add")}--><button data-modal='{:url("add")}' data-table-id="MenuTable" class="layui-btn layui-btn-sm layui-btn-primary">{:lang('添加菜单')}</button><!--{/if}-->
+<!--{if auth("remove")}--><button data-action='{:url("remove")}' data-rule="id#{sps}" data-table-id="MenuTable" data-confirm="确定将选中记录移入回收站吗？" class="layui-btn layui-btn-sm layui-btn-danger">移入回收站</button><!--{/if}-->
+{else}
+<!--{if auth("restore")}--><button data-action='{:url("restore")}' data-rule="id#{id}" data-table-id="MenuTable" data-confirm="确定恢复选中记录吗？" class="layui-btn layui-btn-sm layui-btn-primary">恢复记录</button><!--{/if}-->
+<!--{if auth("destroy")}--><button data-action='{:url("destroy")}' data-rule="id#{id}" data-table-id="MenuTable" data-confirm="永久删除后无法恢复，确定继续吗？" class="layui-btn layui-btn-sm layui-btn-danger">永久删除</button><!--{/if}-->
+{/if}
 {/block}
 
 {block name="content"}
@@ -40,20 +36,15 @@
             even: true, height: 'full', page: false,
             sort: {field: 'sort desc,id', type: 'asc'},
             where: {type: '{$type|default="index"}', pid: '{$pid|default=""}'},
-            filter: function (items) {
-                var type = this.where.type;
-                return items.filter(function (item) {
-                    return !(type === 'index' && parseInt(item.status) === 0);
-                });
-            },
             cols: [[
-                {checkbox: true, field: 'sps'},
-                {field: 'sort', title: '{:lang("排序权重")}', width: 100, align: 'center', templet: '#SortInputTpl'},
+                {checkbox: true, field: '{if $type eq 'index'}sps{else}id{/if}'},
+                {field: 'sort', title: '{:lang("排序权重")}', width: 100, align: 'center', {if $type eq 'index'}templet: '#SortInputTpl'{/if}},
                 {field: 'icon', title: '{:lang("图 标")}', width: 80, align: 'center', templet: '<div><i class="{{d.icon}} font-s18"></i></div>'},
                 {field: 'title', title: '{:lang("菜单名称")}', minWidth: 220, templet: '<div><span class="color-desc">{{d.spl}}</span>{{d.title}}</div>'},
                 {field: 'url', title: '{:lang("跳转链接")}', minWidth: 200},
-                {field: 'status', title: '{:lang("使用状态")}', minWidth: 120, align: 'center', templet: '#StatusSwitchTpl'},
-                {toolbar: '#toolbar', title: '{:lang("操作面板")}', minWidth: 150, align: 'center', fixed: 'right'},
+                {if $type eq 'index'}{field: 'status', title: '{:lang("使用状态")}', minWidth: 120, align: 'center', templet: '#StatusSwitchTpl'},{/if}
+                {if $type eq 'recycle'}{field: 'deleted_at', title: '删除时间', minWidth: 170, align: 'center'},{/if}
+                {toolbar: '#toolbar', title: '{:lang("操作面板")}', width: 210, align: 'center', fixed: 'right'},
             ]]
         });
 
@@ -75,15 +66,9 @@
 
 <!-- 数据状态切换模板 -->
 <script type="text/html" id="StatusSwitchTpl">
-    <!--{if auth("state")}-->
-    {{# if( "{$type|default='index'}"==='index' || (d.spc<1 || d.status<1)){ }}
-    <input type="checkbox" value="{{d.sps}}|{{d.spp}}" lay-text="{:lang('已激活')}|{:lang('已禁用')}" lay-filter="StatusSwitch" lay-skin="switch" {{-d.status>0?'checked':''}}>
-    {{# }else{ }}
-    {{-d.status ? '<b class="color-green">{:lang('已激活')}</b>' : '<b class="color-red">{:lang('已禁用')}</b>'}}
-    {{# } }}
-    <!--{else}-->
-    {{-d.status ? '<b class="color-green">{:lang('已激活')}</b>' : '<b class="color-red">{:lang('已禁用')}</b>'}}
-    <!--{/if}-->
+    <!--{if auth('state')}-->
+    <input type="checkbox" value="{{d.sps}}|{{d.spp}}" lay-text="已激活|已禁用" lay-filter="StatusSwitch" lay-skin="switch" {{-d.status>0?'checked':''}}>
+    <!--{else}-->{{-d.status ? '已激活' : '已禁用'}}<!--{/if}-->
 </script>
 
 <!-- 列表排序权重模板 -->
@@ -93,27 +78,13 @@
 
 <!-- 操控面板的模板 -->
 <script type="text/html" id="toolbar">
-
-    <!-- {if isset($type) and $type eq 'index'} -->
-    <!-- {if auth('add')} -->
-    {{# if(d.spt<2){ }}
-    <a class="layui-btn layui-btn-sm layui-btn-primary" data-title="添加系统菜单" data-modal='{:url("add")}?pid={{d.id}}'>{:lang('添 加')}</a>
-    {{# }else{ }}
-    <a class="layui-btn layui-btn-sm layui-btn-disabled">{:lang('添 加')}</a>
-    {{# } }}
-    <!-- {/if} -->
-    {if auth('edit')}
-    <a class="layui-btn layui-btn-sm" data-event-dbclick data-title="编辑系统菜单" data-modal='{:url("edit")}?id={{d.id}}'>{:lang('编 辑')}</a>
+    {if $type eq 'index'}
+    <!--{if auth('add')}-->{{# if(d.spt<2){ }}<a class="layui-btn layui-btn-sm layui-btn-primary" data-modal='{:url("add")}?pid={{d.id}}'>添加</a>{{# } }}<!--{/if}-->
+    <!--{if auth('edit')}--><a class="layui-btn layui-btn-sm" data-modal='{:url("edit")}?id={{d.id}}'>编辑</a><!--{/if}-->
+    <!--{if auth('remove')}--><a class="layui-btn layui-btn-sm layui-btn-danger" data-action="{:url('remove')}" data-value="id#{{d.sps}}" data-confirm="确定将菜单及子菜单移入回收站吗？">删除</a><!--{/if}-->
+    {else}
+    <!--{if auth('restore')}--><a class="layui-btn layui-btn-sm layui-btn-primary" data-action="{:url('restore')}" data-value="id#{{d.id}}">恢复</a><!--{/if}-->
+    <!--{if auth('destroy')}--><a class="layui-btn layui-btn-sm layui-btn-danger" data-action="{:url('destroy')}" data-value="id#{{d.id}}" data-confirm="永久删除后无法恢复，确定继续吗？">永久删除</a><!--{/if}-->
     {/if}
-    <!-- {else} -->
-    {if auth('remove')}
-    {{# if( (d.spc<1 || d.status<1)){ }}
-    <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="{:lang('确定要删除菜单吗？')}" data-action="{:url('remove')}" data-value="id#{{d.sps}}">{:lang('删 除')}</a>
-    {{# }else{ }}
-    <a class="layui-btn layui-btn-disabled layui-btn-sm">{:lang('删 除')}</a>
-    {{# } }}
-    {/if}
-    <!-- {/if} -->
-
 </script>
 {/block}
