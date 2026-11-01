@@ -326,7 +326,8 @@ $(function () {
                     }
                     layer.closeAll('loading');
                     if (parseInt(XMLHttpRequest.status) !== 200) {
-                        $.msg.tips('E' + XMLHttpRequest.status + ' - 服务器繁忙，请稍候再试！');
+                        const problem = XMLHttpRequest.responseJSON;
+                        $.msg.tips(problem && typeof problem.info === 'string' ? problem.info : 'E' + XMLHttpRequest.status + ' - 服务器繁忙，请稍候再试！');
                     } else {
                         this.success(XMLHttpRequest.responseText);
                     }

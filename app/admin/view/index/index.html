@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="{:app()->lang->getLangSet()}">
 
 <head>
-    <title>{block name="title"}{$title|default=''}{if !empty($title)} · {/if}{:sysconf('site_name')}{/block}</title>
+    <title>{block name="title"}{$title|default=''|lang}{if !empty($title)} · {/if}{:sysconf('site_name')}{/block}</title>
     <meta charset="utf-8">
     <meta name="csrf-token" content="{:systoken()}">
     <meta name="renderer" content="webkit">
@@ -59,6 +59,7 @@
 <script src="__ROOT__/static/plugs/layui/layui.js"></script>
 <script src="__ROOT__/static/plugs/require/require.js"></script>
 <script src="__ROOT__/static/admin.js"></script>
+<script src="__ROOT__/static/plugs/admin/language.js"></script>
 <script src="__ROOT__/static/extra/script.js"></script>
 {block name='script'}{/block}
 </body>

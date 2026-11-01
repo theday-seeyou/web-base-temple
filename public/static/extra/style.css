@@ -12,3 +12,74 @@
 /* | 自定义后台扩展样式，需要在加载 console.css 后载入
 /* | 使用 composer require theday-seeyou/web-base-temple 时不会更新此文件
 /* +---------------------------------------------------------------------- */
+
+.layui-layout > .layui-header > ul.layui-nav > li.wb-global-language {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 55px;
+    padding: 0 8px;
+    vertical-align: top;
+}
+.wb-language-segmented {
+    --wb-language-accent: #007f73;
+    --wb-language-track: #f2f4f5;
+    --wb-language-border: #dce2e5;
+    --wb-language-text: #52616b;
+    --wb-language-hover: #e4eaed;
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    overflow: visible;
+    box-sizing: border-box;
+    height: 36px;
+    padding: 3px;
+    border: 1px solid var(--wb-language-border);
+    border-radius: 7px;
+    background: var(--wb-language-track);
+    line-height: normal;
+}
+.wb-language-segmented.layui-btn-group .layui-btn {
+    position: relative;
+    box-sizing: border-box;
+    min-width: 60px;
+    height: 28px;
+    margin: 0 !important;
+    padding: 0 8px 0 18px;
+    border: 0;
+    border-radius: 4px !important;
+    background: transparent;
+    color: var(--wb-language-text);
+    font-size: 12px;
+    line-height: 28px;
+    opacity: 1;
+}
+.wb-language-segmented .layui-btn::before { content: ''; position: absolute; inset: -8px 0; }
+.wb-language-segmented .layui-btn:hover:not(:disabled) { background: var(--wb-language-hover); }
+.wb-language-segmented .layui-btn[aria-pressed="true"] { background: var(--wb-language-accent); color: #fff; font-weight: 600; }
+.wb-language-segmented .layui-btn[aria-pressed="true"]:hover { background: var(--wb-language-accent); }
+.wb-language-segmented .layui-btn:focus-visible { z-index: 1; outline: 2px solid var(--wb-language-accent); outline-offset: 1px; }
+.wb-language-segmented .layui-btn:disabled { cursor: default; }
+.wb-language-segmented .wb-language-check { position: absolute; top: 0; left: 6px; margin: 0; padding: 0; font-size: 12px !important; visibility: hidden; }
+.wb-language-segmented [aria-pressed="true"] .wb-language-check { visibility: visible; }
+.wb-language-segmented[aria-busy="true"] { opacity: .65; }
+.layui-layout > .layui-header > ul.layui-nav > li.wb-global-language > a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 55px;
+    padding: 0;
+}
+.wb-language-settings .layui-form-label { width: 120px; }
+.wb-language-settings .layui-input-block { margin-left: 150px; }
+@media (max-width: 760px) {
+    .layui-layout > .layui-header > ul.layui-layout-left { display: flex; max-width: calc(100% - 184px); overflow-x: auto; scrollbar-width: none; }
+    .layui-layout > .layui-header > ul.layui-layout-left > li { flex: 0 0 auto; }
+    .layui-layout > .layui-header > ul.layui-layout-right { display: block; }
+    .layui-layout > .layui-header > ul.layui-layout-right > li:not(.wb-global-language) { display: none; }
+    .layui-layout > .layui-header > ul.layui-nav > li.wb-global-language { gap: 4px; padding: 0 4px; }
+    .layui-card-html:has(.wb-language-settings) { min-width: 0 !important; }
+    .wb-language-settings .layui-form-label { float: none; width: auto; padding-left: 0; text-align: left; }
+    .wb-language-settings .layui-input-block { margin-left: 0; }
+}

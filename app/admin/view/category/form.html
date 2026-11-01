@@ -3,7 +3,7 @@
     <div class="layui-card-body padding-left-40">
 
         <div class="layui-form-item">
-            <label class="layui-form-label label-required-next">上级栏目</label>
+            <label class="layui-form-label label-required-next">{:lang('上级栏目')}</label>
             <div class="layui-input-block">
                 <select name='pid' class='layui-select' lay-search>
                     {foreach $categories as $cat}{eq name='cat.id' value='$vo.pid|default=0'}
@@ -12,53 +12,53 @@
                     <option value='{$cat.id}'>{$cat.spl|raw}{$cat.title}</option>
                     {/eq}{/foreach}
                 </select>
-                <p class="help-block">必选，请选择上级栏目（目前最多支持三级栏目）</p>
+                <p class="help-block">{:lang('必选，请选择上级栏目（目前最多支持三级栏目）')}</p>
             </div>
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label label-required-next">栏目名称</label>
+            <label class="layui-form-label label-required-next">{:lang('栏目名称')}</label>
             <div class="layui-input-block">
-                <input name="title" value='{$vo.title|default=""}' required vali-name="栏目名称" placeholder="请输入栏目名称" class="layui-input">
-                <p class="help-block">必填，建议 4-6 个汉字</p>
+                <input name="title" value='{$vo.title|default=""}' required vali-name="{:lang('栏目名称')}" placeholder="{:lang('请输入栏目名称')}" class="layui-input">
+                <p class="help-block">{:lang('必填，建议 4-6 个汉字')}</p>
             </div>
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">栏目图标</label>
+            <label class="layui-form-label">{:lang('栏目图标')}</label>
             <div class="layui-input-block">
                 <div class="layui-input-inline">
-                    <input placeholder="请输入或选择图标" name="icon" value='{$vo.icon|default=""}' class="layui-input">
+                    <input placeholder="{:lang('请输入或选择图标')}" name="icon" value='{$vo.icon|default=""}' class="layui-input">
                 </div>
                 <span style="padding:0 12px;min-width:45px" class='layui-btn layui-btn-primary'>
                     <i style="font-size:1.2em;margin:0;float:none" class='{$vo.icon|default=""}'></i>
                 </span>
-                <button data-icon='icon' type='button' class='layui-btn layui-btn-primary'>选择图标</button>
-                <p class="help-block">可选，设置栏目图标</p>
+                <button data-icon='icon' type='button' class='layui-btn layui-btn-primary'>{:lang('选择图标')}</button>
+                <p class="help-block">{:lang('可选，设置栏目图标')}</p>
             </div>
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">封面图</label>
+            <label class="layui-form-label">{:lang('封面图')}</label>
             <div class="layui-input-block">
-                <input name="cover" value='{$vo.cover|default=""}' placeholder="请上传封面图" class="layui-input">
-                <p class="help-block">可选，栏目封面图片</p>
+                <input name="cover" value='{$vo.cover|default=""}' placeholder="{:lang('请上传封面图')}" class="layui-input">
+                <p class="help-block">{:lang('可选，栏目封面图片')}</p>
             </div>
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">描述</label>
+            <label class="layui-form-label">{:lang('描述')}</label>
             <div class="layui-input-block">
-                <textarea name="desc" placeholder="请输入栏目描述" class="layui-textarea">{$vo.desc|default=''}</textarea>
-                <p class="help-block">可选，栏目描述或备注</p>
+                <textarea name="desc" placeholder="{:lang('请输入栏目描述')}" class="layui-textarea">{$vo.desc|default=''}</textarea>
+                <p class="help-block">{:lang('可选，栏目描述或备注')}</p>
             </div>
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">排序</label>
+            <label class="layui-form-label">{:lang('排序')}</label>
             <div class="layui-input-block">
-                <input type="number" name="sort" value='{$vo.sort|default=0}' min="0" placeholder="排序值，越小越靠前" class="layui-input">
-                <p class="help-block">可选，排序值越小越靠前，默认为 0</p>
+                <input type="number" name="sort" value='{$vo.sort|default=0}' min="0" placeholder="{:lang('排序值，越小越靠前')}" class="layui-input">
+                <p class="help-block">{:lang('可选，排序值越小越靠前，默认为 0')}</p>
             </div>
         </div>
 
@@ -68,8 +68,8 @@
     {notempty name='vo.id'}<input type='hidden' value='{$vo.id}' name='id'>{/notempty}
 
     <div class="layui-form-item text-center">
-        <button class="layui-btn" type='submit'>保存数据</button>
-        <button class="layui-btn layui-btn-danger" type='button' data-confirm="确定要取消编辑吗？" data-close>取消编辑</button>
+        <button class="layui-btn" type='submit'>{:lang('保存数据')}</button>
+        <button class="layui-btn layui-btn-danger" type='button' data-confirm="{:lang('确定要取消编辑吗？')}" data-close>{:lang('取消编辑')}</button>
     </div>
 </form>
 

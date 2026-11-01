@@ -21,6 +21,7 @@ use WebBase\Core\Controller;
 use WebBase\Core\Exception;
 use WebBase\Core\model\SystemUser;
 use WebBase\Core\service\AdminService;
+use app\admin\service\AdminLanguageService;
 use WebBase\Core\service\PasswordService;
 use WebBase\Core\service\MenuService;
 use think\db\exception\DataNotFoundException;
@@ -55,8 +56,54 @@ class Index extends Controller
             $this->title = '系统管理后台';
             $this->super = AdminService::isSuper();
             $this->theme = AdminService::getUserTheme();
+            $this->adminLocale = AdminLanguageService::current();
+            $this->adminLanguages = array_intersect_key(AdminLanguageService::catalog(), array_flip(AdminLanguageService::settings()['enabled']));
             $this->fetch();
         }
+    }
+
+    /**
+     * 切换后台全局语言。
+     * @login true
+     */
+    public function locale()
+    {
+        if (!$this->request->isPost()) {
+            return json(['code' => 0, 'info' => lang('请使用 POST 请求。')], 405);
+        }
+        try {
+            $locale = AdminLanguageService::select($this->request->post('locale'));
+        } catch (\InvalidArgumentException $exception) {
+            return json(['code' => 0, 'info' => lang($exception->getMessage())], 422);
+        }
+        return json(['code' => 1, 'info' => lang('语言已切换。'), 'data' => ['locale' => $locale]]);
+    }
+
+    /**
+     * 后台全局语言设置。
+     * @login true
+     */
+    public function languages()
+    {
+        if (!AdminService::isSuper()) {
+            return json(['code' => 0, 'info' => lang('请使用超管账号操作！')], 403);
+        }
+        if ($this->request->isGet()) {
+            $this->title = '全局语言设置';
+            $this->catalog = AdminLanguageService::catalog();
+            $this->languages = AdminLanguageService::settings();
+            $this->fetch();
+        }
+        if (!$this->request->isPost()) {
+            return json(['code' => 0, 'info' => lang('请使用 POST 请求。')], 405);
+        }
+        try {
+            AdminLanguageService::saveSettings($this->request->post('enabled', []), $this->request->post('default'));
+        } catch (\InvalidArgumentException $exception) {
+            return json(['code' => 0, 'info' => lang($exception->getMessage())], 422);
+        }
+        sysoplog('全局语言设置', '更新后台启用语言与默认语言');
+        $this->success('数据保存成功！', 'javascript:location.reload()');
     }
 
     /**

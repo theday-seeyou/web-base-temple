@@ -1,0 +1,30 @@
+{extend name="main"}
+
+{block name="content"}
+<form action="{:sysuri()}" method="post" data-auto="true" class="layui-form wb-language-settings">
+    <blockquote class="layui-elem-quote">{:lang('所有后台模块共用此设置。个人切换不会修改默认语言，也不会改变前台访客的语言。')}</blockquote>
+    <div class="layui-form-item">
+        <label class="layui-form-label">{:lang('启用语言')}</label>
+        <div class="layui-input-block">
+            {foreach $catalog as $locale => $label}
+            <input type="checkbox" name="enabled[]" value="{$locale}" title="{$label}" {if in_array($locale, $languages.enabled, true)}checked{/if}>
+            {/foreach}
+            <p class="help-block">{:lang('停用语言不会删除已有内容；原来选择该语言的管理员会使用默认语言。')}</p>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">{:lang('默认语言')}</label>
+        <div class="layui-input-block">
+            <select name="default" lay-ignore class="layui-input" aria-label="{:lang('默认语言')}">
+                {foreach $catalog as $locale => $label}
+                <option value="{$locale}" {if $languages.default === $locale}selected{/if}>{$label}</option>
+                {/foreach}
+            </select>
+            <p class="help-block">{:lang('默认语言必须启用；新账号和未选择语言的账号使用此语言。')}</p>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block"><button class="layui-btn" type="submit">{:lang('保存设置')}</button></div>
+    </div>
+</form>
+{/block}

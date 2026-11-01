@@ -17,6 +17,18 @@
         {/foreach}
     </ul>
     <ul class="layui-nav layui-layout-right">
+        {if session('user.username')}
+        <li lay-unselect class="layui-nav-item wb-global-language">
+            <div id="admin-language" class="layui-btn-group wb-language-segmented" role="group" aria-label="{:lang('后台全局语言')}" data-current="{$adminLocale}" data-url="{:sysuri('admin/index/locale')}">
+                {foreach $adminLanguages as $locale => $label}
+                <button type="button" class="layui-btn layui-btn-sm" data-locale="{$locale}" lang="{$locale}" aria-pressed="{if $adminLocale === $locale}true{else}false{/if}" {if count($adminLanguages) < 2}disabled{/if}><i class="layui-icon layui-icon-ok wb-language-check" aria-hidden="true"></i><span>{if $locale === 'en-us'}EN{else}{$label}{/if}</span></button>
+                {/foreach}
+            </div>
+            {if isset($super) and $super}
+            <a data-open="{:sysuri('admin/index/languages')}" role="button" tabindex="0" aria-label="{:lang('全局语言设置')}" title="{:lang('全局语言设置')}"><i class="layui-icon layui-icon-set"></i></a>
+            {/if}
+        </li>
+        {/if}
         <li lay-unselect class="layui-nav-item"><a data-reload><i class="layui-icon layui-icon-refresh-3"></i></a></li>
         {if session('user.username')}
         <li class="layui-nav-item">
